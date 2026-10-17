@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>TDSF-Linux Desktop — 面向 Linux 初学者的桌面运维工作台</title>
+<meta name="description" content="SSH 终端 + 可见执行的 AI + 高危命令拦截 + 可信决策留痕，一台桌面机完成的 Linux 运维学习环境。">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1014;
+    --bg-2: #12161c;
+    --panel: #171c23;
+    --line: #262d36;
+    --ink: #e6ebf0;
+    --ink-2: #9aa6b2;
+    --ink-3: #6b7684;
+    --accent: #3b82f6;
+    --accent-soft: rgba(59, 130, 246, 0.12);
+    --ok: #34d399;
+    --warn: #fbbf24;
+    --danger: #f87171;
+    --mono: "JetBrains Mono", "Cascadia Code", Consolas, "Microsoft YaHei Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- 顶栏 ---------- */
+  header.top {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(13, 16, 20, 0.92);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(8px);
+  }
+  .top-inner { display: flex; align-items: center; gap: 20px; height: 56px; }
+  .brand { font-family: var(--mono); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.02em; }
+  .brand span { color: var(--accent); }
+  .top nav { margin-left: auto; display: flex; gap: 18px; font-size: 0.86rem; }
+  .top nav a { color: var(--ink-2); }
+  .top nav a:hover { color: var(--ink); text-decoration: none; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 72px 0 40px; }
+  .kicker { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.06em; }
+  h1 {
+    font-size: clamp(2rem, 5.2vw, 3.1rem);
+    line-height: 1.18; letter-spacing: -0.022em; font-weight: 700;
+    margin: 14px 0 18px; text-wrap: balance;
+  }
+  .lede { font-size: 1.08rem; color: var(--ink-2); max-width: 62ch; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 34px; }
+  .chip {
+    font-family: var(--mono); font-size: 0.78rem; color: var(--ink-2);
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px;
+    background: var(--bg-2);
+  }
+  .chip b { color: var(--ink); font-weight: 600; }
+  .hero-shot {
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    background: #000; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  }
+  .hero-shot img { display: block; width: 100%; }
+
+  /* ---------- 通用节 ---------- */
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 1.5rem; letter-spacing: -0.012em; margin-bottom: 10px; }
+  .sec-note { color: var(--ink-2); max-width: 68ch; margin-bottom: 30px; }
+  h3 { font-size: 1.02rem; margin-bottom: 6px; }
+
+  /* ---------- 能力卡 ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 14px; }
+  .feat {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 20px 20px 18px;
+  }
+  .feat:hover { border-color: #33404e; }
+  .feat .tag { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.04em; }
+  .feat p { color: var(--ink-2); font-size: 0.93rem; margin-top: 6px; }
+  .feat ul { margin: 10px 0 0 16px; color: var(--ink-2); font-size: 0.9rem; }
+  .feat li { margin: 3px 0; }
+
+  /* ---------- 截图 ---------- */
+  .shot { margin-bottom: 30px; }
+  .shot-frame {
+    border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #000;
+  }
+  .shot-frame img { display: block; width: 100%; }
+  .shot figcaption {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--ink-3); margin-top: 9px;
+  }
+  .shot figcaption b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---------- 架构 ---------- */
+  .arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-top: 8px; }
+  .proc {
+    border: 1px solid var(--line); border-radius: 10px; padding: 18px; background: var(--bg-2);
+  }
+  .proc .role { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-3); }
+  .proc h3 { margin: 4px 0 8px; font-family: var(--mono); font-size: 0.98rem; }
+  .proc p { font-size: 0.89rem; color: var(--ink-2); }
+  .rule {
+    margin-top: 22px; padding: 16px 18px; border: 1px dashed #2f3a45; border-radius: 10px;
+    background: var(--accent-soft); font-size: 0.92rem; color: var(--ink);
+  }
+  .rule b { color: var(--accent); }
+
+  /* ---------- 流程 ---------- */
+  .flow { display: grid; gap: 10px; counter-reset: step; }
+  .step {
+    display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;
+  }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    font-family: var(--mono); font-size: 0.85rem; color: var(--accent);
+    border: 1px solid #2b3a4d; border-radius: 7px; width: 34px; height: 34px;
+    display: grid; place-items: center; background: var(--bg-2);
+  }
+  .step h3 { font-size: 0.98rem; }
+  .step p { font-size: 0.9rem; color: var(--ink-2); margin-top: 2px; }
+
+  /* ---------- 表格 ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  th { color: var(--ink-3); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td:first-child { font-family: var(--mono); font-size: 0.86rem; color: var(--ink); white-space: nowrap; }
+  td:last-child { color: var(--ink-2); }
+  tbody tr:hover { background: var(--bg-2); }
+
+  /* ---------- 数字 ---------- */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 26px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
+  .stat .n { font-family: var(--mono); font-size: 1.7rem; color: var(--ink); letter-spacing: -0.02em; }
+  .stat .l { font-size: 0.85rem; color: var(--ink-2); margin-top: 2px; }
+  .gates { display: flex; flex-wrap: wrap; gap: 8px; }
+  .gate {
+    font-family: var(--mono); font-size: 0.78rem; color: var(--ink-2);
+    background: var(--bg-2); border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px;
+  }
+  .gate::before { content: "✓ "; color: var(--ok); }
+
+  /* ---------- 边界 ---------- */
+  .honest { background: var(--bg-2); border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: 8px; padding: 18px 20px; }
+  .honest ul { margin: 6px 0 0 18px; color: var(--ink-2); font-size: 0.92rem; }
+  .honest li { margin: 5px 0; }
+
+  footer {
+    border-top: 1px solid var(--line); padding: 34px 0 54px;
+    color: var(--ink-3); font-size: 0.85rem;
+  }
+  footer .links { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 10px; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .feat, .stat, .shot-frame { transition: border-color 0.18s ease, transform 0.18s ease; }
+  }
+  @media (max-width: 640px) {
+    .top nav { display: none; }
+    .hero { padding-top: 46px; }
+    section { padding: 42px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand">TDSF<span>·</span>LINUX DESKTOP</div>
+    <nav>
+      <a href="#features">能力</a>
+      <a href="#screens">界面</a>
+      <a href="#arch">架构</a>
+      <a href="#trust">可信决策</a>
+      <a href="#quality">质量</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">Electron 桌面应用 · 本地优先</div>
+    <h1>让第一次连上 Linux 服务器的人，<br>敢敲下一条命令</h1>
+    <p class="lede">
+      TDSF-Linux Desktop 把 SSH 终端、AI 助手、高危命令拦截与决策留痕放进同一个窗口。
+      AI 不替你按下回车——它先说清要执行什么、依据是什么、失败会怎样，再由你确认；
+      你自己敲的命令同样会过一遍风险检查。
+    </p>
+    <div class="chips">
+      <span class="chip">Electron <b>43</b> + React <b>19</b></span>
+      <span class="chip">终端 <b>xterm.js</b> + 命令/输出分块</span>
+      <span class="chip">模型 <b>可指向本机 Ollama</b></span>
+      <span class="chip">数据 <b>只存本机 SQLite</b></span>
+    </div>
+    <figure class="shot">
+      <div class="hero-shot"><img src="assets/shot-splash.jpg" alt="TDSF-Linux Desktop 启动页" loading="lazy"></div>
+      <figcaption><b>启动页</b> · 真实截图，未做美化</figcaption>
+    </figure>
+  </div>
+
+  <section id="about">
+    <h2>为什么是这样一个工具</h2>
+    <p class="sec-note">
+      初学 Linux 时最难的不是记命令，而是"这条命令按下去会发生什么"。
+      教程给不了失败样本，AI 聊天给不了执行现场，终端又什么都不解释。
+      这个工作台把三件事接在一起：<b>命令在哪里执行</b>（本机 / 远端 / 第几个标签页）、
+      <b>执行前后发生了什么</b>（命令与输出被切成块，可回看可检索）、
+      <b>哪些命令不该执行</b>（结构化解析 + 规则库判定，拦截后留下可读的原因）。
+    </p>
+    <div class="grid">
+      <div class="feat">
+        <div class="tag">终端优先</div>
+        <h3>界面围绕会话，而不是围绕聊天框</h3>
+        <p>三栏可拖拽布局，终端格默认最大化；左侧资源管理器，右侧 AI 面板可随时收起。多终端标签、独立第二个窗口，同时看两台机器不用来回切。</p>
+      </div>
+      <div class="feat">
+        <div class="tag">可见执行</div>
+        <h3>AI 的每一步都落在屏上</h3>
+        <p>思考过程、工具调用、待执行命令、返回结果分开展示；上下文占用按模型真实窗口计算，用量与估算分开标注，不拿估出来的数字冒充实测。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <h2>核心能力</h2>
+    <p class="sec-note">以下每一项都对应界面里真实存在的入口，未接线的占位功能不写在这里。</p>
+    <div class="grid">
+      <div class="feat">
+        <div class="tag">01 · 终端</div>
+        <h3>SSH 与本机终端，同一套语义</h3>
+        <ul>
+          <li>xterm.js 渲染，Fit / Search / 链接识别插件</li>
+          <li>本机终端走 node-pty，远端走 ssh2，两侧命令块口径一致</li>
+          <li>OSC 133 / 633 标记切分"命令—输出"块，供 AI 与历史检索消费</li>
+          <li>跳板机连接同样校验主机密钥</li>
+        </ul>
+      </div>
+      <div class="feat">
+        <div class="tag">02 · 命令安全</div>
+        <h3>拦截发生在执行之前</h3>
+        <ul>
+          <li>规则以数据文件维护：10 类判定、200 余条判定项</li>
+          <li>tree-sitter-bash 做结构化解析，绕过词表的写法（重定向、命令替换、find -exec）另走一层</li>
+          <li>人敲的、粘贴的、AI 发起的命令过同一道闸</li>
+          <li>每次拦截留痕，给出原因与替代建议</li>
+        </ul>
+      </div>
+      <div class="feat">
+        <div class="tag">03 · AI 助手</div>
+        <h3>流式、可中断、可降级</h3>
+        <ul>
+          <li>诊断 / 部署 / 巡检 / 回滚四种工作模式，PAOR 循环编排</li>
+          <li>24 个受控工具（SSH、日志、监控、知识库、可信度、沙箱审批）经主进程派发</li>
+          <li>请求级总超时 + 单一重试栈，重试不重复推送已吐出的字</li>
+          <li>模型侧失败时给出可操作的降级路径，而不是一个红色报错</li>
+        </ul>
+      </div>
+      <div class="feat">
+        <div class="tag">04 · 可信决策</div>
+        <h3>结论后面挂着证据链</h3>
+        <ul>
+          <li>多源证据加权融合（Dempster 规则 + PCR5 冲突再分配）</li>
+          <li>雷达图显示每条证据的贡献与冲突流向，可逐项展开</li>
+          <li>决策记录持久化，事后能查"当时依据是什么"</li>
+        </ul>
+      </div>
+      <div class="feat">
+        <div class="tag">05 · 知识库</div>
+        <h3>离线可查的运维知识</h3>
+        <ul>
+          <li>命令词典、教程、故障案例三类条目，断网可用</li>
+          <li>本地嵌入模型 + SQLite 向量索引做语义检索，不依赖外部 API</li>
+          <li>读者答复（有帮助 / 没帮助）回灌条目成功率，逐次累积</li>
+        </ul>
+      </div>
+      <div class="feat">
+        <div class="tag">06 · 监控与日志</div>
+        <h3>这台机器现在怎么样</h3>
+        <ul>
+          <li>CPU / 内存 / 磁盘 / 网络定时采样，阈值可配</li>
+          <li>告警按"会话 + 种类"稳定编号，标记已处理会真的改变状态，指标回落后自动作废</li>
+          <li>日志分析、系统事件与操作历史可交叉检索</li>
+        </ul>
+      </div>
+      <div class="feat">
+        <div class="tag">07 · 文件与预览</div>
+        <h3>改远端文件不必离开窗口</h3>
+        <ul>
+          <li>SFTP 文件树 + Monaco 编辑器，编辑器资源本地打包，不请求 CDN</li>
+          <li>路径写入范围受限，越界操作需要先经确认</li>
+          <li>预览面板经 SSH 端口转发打开远端服务，句柄协议限制可访问范围</li>
+        </ul>
+      </div>
+      <div class="feat">
+        <div class="tag">08 · 本地优先</div>
+        <h3>数据与凭据留在本机</h3>
+        <ul>
+          <li>服务器信息、历史、知识库存在本地 SQLite，凭据只在主进程边界内使用</li>
+          <li>日志、报错、AI 上下文出边界前统一脱敏</li>
+          <li>模型可指向本机 Ollama，全链路不出内网</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens">
+    <h2>界面预览</h2>
+    <p class="sec-note">取自自动化验收脚本对真实运行窗口的截图，未替换内容、未做后期。</p>
+    <figure class="shot">
+      <div class="shot-frame"><img src="assets/shot-workbench.png" alt="工作台：资源管理器、终端区与 AI 面板三栏布局" loading="lazy"></div>
+      <figcaption><b>工作台</b> · 左：服务器与文件树；中：终端（未连接时的引导态）；右：AI 运维助手与模式标签</figcaption>
+    </figure>
+    <figure class="shot">
+      <div class="shot-frame"><img src="assets/shot-knowledge.png" alt="运维知识库列表页" loading="lazy"></div>
+      <figcaption><b>运维知识库</b> · 搜索 + 分类标签 + 匹配度，右侧热门知识与最近浏览</figcaption>
+    </figure>
+  </section>
+
+  <section id="arch">
+    <h2>架构</h2>
+    <p class="sec-note">
+      三进程分离。渲染层拿不到 Node 能力，所有敏感操作经 preload 暴露的类型化通道进入主进程；
+      通道清单由单一契约文件生成，渲染层与主进程共用同一份类型。
+    </p>
+    <div class="arch">
+      <div class="proc">
+        <div class="role">主进程 · Node.js</div>
+        <h3>能力与判定</h3>
+        <p>SSH2 连接池、node-pty、SQLite、风险引擎、可信度融合、LLM 客户端、MCP 服务、调度器。</p>
+      </div>
+      <div class="proc">
+        <div class="role">Preload · contextBridge</div>
+        <h3>受控边界</h3>
+        <p>283 个 IPC 通道由契约生成，入参在入口做严格校验，错误以统一信封返回。</p>
+      </div>
+      <div class="proc">
+        <div class="role">渲染进程 · React 19</div>
+        <h3>界面与状态</h3>
+        <p>Zustand 状态容器，Radix + Tailwind 组件层，设计令牌单一来源，深浅两套主题都过对比度检查。</p>
+      </div>
+    </div>
+    <div class="rule">
+      <b>沙箱三原则保持不动：</b>contextIsolation 开启、nodeIntegration 关闭、sandbox 开启。
+      新增能力优先落在主进程，渲染层只负责呈现与发起请求。
+    </div>
+  </section>
+
+  <section id="trust">
+    <h2>一条 AI 建议从生成到执行</h2>
+    <p class="sec-note">这条链路是产品的核心承诺：任何改动远端状态的命令，都要走完这四步才会落到终端。</p>
+    <div class="flow">
+      <div class="step">
+        <div>
+          <h3>生成</h3>
+          <p>模型基于终端上下文、命令块历史与知识库给出建议，工具调用在流式过程中即时展示，不事后补写。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>判定</h3>
+          <p>命令进风险引擎：词表规则 + bash AST 解析 + 只读白名单，输出风险等级、命中依据与影响范围。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>确认</h3>
+          <p>决策卡由主进程构造（模型无法伪造自己的"已批准"），界面显示准备执行什么、在哪台机器、失败怎么回滚。</p>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h3>留痕</h3>
+          <p>执行结果与当时的证据构成写入本地记录，事后在决策页可回查；拦截同样留痕，包含被拦下的原因。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stack">
+    <h2>技术栈</h2>
+    <table>
+      <thead><tr><th>层</th><th>选型</th></tr></thead>
+      <tbody>
+        <tr><td>桌面框架</td><td>Electron 43（contextIsolation / sandbox 全开）</td></tr>
+        <tr><td>界面</td><td>React 19 + TypeScript + Zustand 5 + Radix UI + Tailwind + lucide-react</td></tr>
+        <tr><td>终端</td><td>xterm.js 5 + node-pty（本机）+ ssh2（远端）</td></tr>
+        <tr><td>编辑器</td><td>Monaco 0.56，资源本地打包，无 CDN 依赖</td></tr>
+        <tr><td>AI</td><td>Vercel AI SDK 7 + 官方 MCP SDK 1.32，Anthropic / Google / OpenAI 兼容端，支持本机 Ollama</td></tr>
+        <tr><td>命令解析</td><td>web-tree-sitter + tree-sitter-bash</td></tr>
+        <tr><td>存储</td><td>better-sqlite3 + sqlite-vec 向量索引，@xenova/transformers 本地嵌入</td></tr>
+        <tr><td>可观测</td><td>Langfuse 追踪（未配置密钥时自动关闭，不影响主流程）</td></tr>
+        <tr><td>测试</td><td>Vitest 2 + Playwright（直驱 Electron 窗口）</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="quality">
+    <h2>质量与验证</h2>
+    <p class="sec-note">下面每个数字都在 2026-10-17 由本机脚本重新量过；界面上不出现没有生产者的统计值。</p>
+    <div class="stats">
+      <div class="stat"><div class="n">3246</div><div class="l">自动化用例通过（270 个测试文件，0 失败）</div></div>
+      <div class="stat"><div class="n">507</div><div class="l">TypeScript / TSX 源文件</div></div>
+      <div class="stat"><div class="n">283</div><div class="l">IPC 通道，全部由契约单源生成</div></div>
+      <div class="stat"><div class="n">24</div><div class="l">AI 可调用的受控工具</div></div>
+    </div>
+    <h3 style="margin:22px 0 10px;font-size:1.02rem">每次提交前会跑红的门禁</h3>
+    <div class="gates">
+      <span class="gate">ESLint</span>
+      <span class="gate">TypeScript 类型检查</span>
+      <span class="gate">测试代码类型零错</span>
+      <span class="gate">死代码闸</span>
+      <span class="gate">设计契约闸（令牌单源）</span>
+      <span class="gate">界面可读性审计（含浅色模式对比度）</span>
+      <span class="gate">IPC 契约一致性</span>
+      <span class="gate">本地密钥扫描</span>
+      <span class="gate">Git 历史凭据回归扫描</span>
+      <span class="gate">内网拓扑按值核对</span>
+      <span class="gate">只写不读状态键检测</span>
+    </div>
+  </section>
+
+  <section id="status">
+    <h2>当前状态与边界</h2>
+    <div class="honest">
+      <ul>
+        <li>项目仍在持续开发，源码仓库当前为私有状态，暂未公开发布安装包；需要试用或源码请通过下方联系方式沟通。</li>
+        <li>可信度融合在证据权重读取失败时降级为无权重融合，界面会如实显示降级，不会静默给一个"看起来更准"的数字。</li>
+        <li>监控、日志与远端文件相关能力需要先连接一台 Linux 服务器；未连接时界面显示空状态而不是示例数据。</li>
+        <li>AI 能力取决于所配置的模型，本地小模型下工具调用的稳定性会明显下降，此时建议只用于解释与诊断。</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="links">
+      <a href="https://github.com/harryopo">GitHub @harryopo</a>
+      <a href="https://harryopo.github.io/tdsf-terminal-agent/">同系列：TDSF Terminal Agent（桌面版）</a>
+      <a href="https://harryopo.github.io/">返回项目门户</a>
+    </div>
+    <div>TDSF-Linux Desktop · 截图与文字均来自本机真实运行界面 · 页面最后更新 2026-10-17</div>
+  </div>
+</footer>
+
+</body>
+</html>
