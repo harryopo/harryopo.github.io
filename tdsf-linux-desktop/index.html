@@ -569,7 +569,7 @@
           网页只做词表与结构检测的演示；真实判定在本地进程里跑，包含 bash AST 解析。
         </p>
       </div>
-      <div class="idx" data-rv>216 条词表项<br>8 个结构检测器</div>
+      <div class="idx" data-rv>226 条词表项<br>8 个结构检测器</div>
     </div>
 
     <div class="guard">
@@ -585,7 +585,7 @@
           <button type="button" class="chip" aria-pressed="false" data-cmd="7">journalctl -u nginx --since "10 min ago"</button>
         </div>
         <div class="rulecount">
-          <div>词表判定项 <b class="num">216</b></div>
+          <div>词表判定项 <b class="num">226</b></div>
           <div>结构性拦截器 <b class="num">8</b></div>
           <div>argv 规则 <b class="num">7</b></div>
           <div>受保护根级路径 <b class="num">15</b></div>
@@ -752,7 +752,7 @@
     <div class="head-row">
       <div>
         <h2 class="h2" data-rv>每个数字都带复现命令</h2>
-        <p class="sec-lede" data-rv>下表全部在 2026-10-18 上午由本机重跑取得（单元 09:07，端到端 09:18，UTC+8）。界面和文档里都不出现没有测法的数字。</p>
+        <p class="sec-lede" data-rv>下表全部在 2026-10-18 由本机重跑取得（单元 10:44，端到端 09:18，UTC+8）。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
       </div>
       <div class="idx" data-rv>7 条读数<br>各带复现命令</div>
     </div>
@@ -761,12 +761,12 @@
       <table class="tbl">
         <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
         <tbody>
-          <tr><td class="k">单元与组件用例</td><td class="v">3249 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3268；270 个测试文件（268 通过 / 2 跳过）</span></td></tr>
+          <tr><td class="k">单元与组件用例</td><td class="v">3256 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3275；271 个测试文件（269 通过 / 2 跳过）</span></td></tr>
           <tr><td class="k">端到端用例</td><td class="v">57 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，15 条按是否需要真服务器 / 真模型跳过</span></td></tr>
           <tr><td class="k">IPC 通道</td><td class="v">272</td><td class="c">npm run audit:ipc　<span class="note">232 请求-响应 + 40 事件推送</span></td></tr>
           <tr><td class="k">已登记契约的通道</td><td class="v">35</td><td class="c">src/shared/ipc-contract.ts　<span class="note">30 请求-响应 + 5 事件推送</span></td></tr>
           <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">508</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
-          <tr><td class="k">命令规则词表项</td><td class="v">216</td><td class="c">src/main/core/command-rules.json　<span class="note">八张表逐项相加</span></td></tr>
+          <tr><td class="k">命令规则词表项</td><td class="v">226</td><td class="c">npm run promo:check　<span class="note">八张表逐项相加，护栏按分组数（早先手数漏了两组，报成 216）</span></td></tr>
           <tr><td class="k">结构性拦截器</td><td class="v">8</td><td class="c">denyBaseline.blockDetectors</td></tr>
         </tbody>
       </table>
@@ -822,7 +822,7 @@
         <a href="https://harryopo.github.io/">返回项目门户</a>
       </div>
       <p class="foot-meta">
-        截图与界面文字均来自本机真实运行窗口 · 页面读数时间 2026-10-18 09:07 UTC+8<br>
+        截图与界面文字均来自本机真实运行窗口 · 页面读数时间 2026-10-18 10:44 UTC+8<br>
         演示里的命令与判定文字取自仓内规则数据；主机地址用 RFC 5737 文档保留段
       </p>
     </div>
