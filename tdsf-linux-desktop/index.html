@@ -344,7 +344,7 @@
       <div class="proc">
         <div class="role">Preload · contextBridge</div>
         <h3>受控边界</h3>
-        <p>283 个 IPC 通道由契约生成，入参在入口做严格校验，错误以统一信封返回。</p>
+        <p>272 条通道（232 请求-响应 + 40 事件推送）的名字全部来自一张中央常量表；已纳入 zod 契约的 31 条在入口校验入参，错误统一按信封返回。</p>
       </div>
       <div class="proc">
         <div class="role">渲染进程 · React 19</div>
@@ -409,13 +409,13 @@
 
   <section id="quality">
     <h2>质量与验证</h2>
-    <p class="sec-note">下面每个数字都在 2026-10-17 由本机脚本重新量过；界面上不出现没有生产者的统计值。</p>
+    <p class="sec-note">下面每个数字都在 2026-10-18 由本机脚本重新量过（用例数取 vitest 汇总，通道数取 <code>npm run audit:ipc</code>）；界面上不出现没有生产者的统计值。</p>
     <div class="stats">
-      <div class="stat"><div class="n">3246</div><div class="l">单元与组件用例通过（270 个测试文件，0 失败）</div></div>
-      <div class="stat"><div class="n">61</div><div class="l">端到端用例通过（Playwright 直驱真实应用窗口）</div></div>
-      <div class="stat"><div class="n">507</div><div class="l">TypeScript / TSX 源文件</div></div>
-      <div class="stat"><div class="n">283</div><div class="l">IPC 通道，全部由契约单源生成</div></div>
-      <div class="stat"><div class="n">24</div><div class="l">AI 可调用的受控工具</div></div>
+      <div class="stat"><div class="n">3249</div><div class="l">单元与组件用例通过（270 个测试文件，0 失败，19 条按环境跳过）</div></div>
+      <div class="stat"><div class="n">59</div><div class="l">端到端用例通过（Playwright 直驱真实应用窗口，另 13 条按环境跳过）</div></div>
+      <div class="stat"><div class="n">508</div><div class="l">TypeScript / TSX 源文件</div></div>
+      <div class="stat"><div class="n">272</div><div class="l">IPC 通道：232 条请求-响应 + 40 条事件推送</div></div>
+      <div class="stat"><div class="n">24</div><div class="l">AI 可调用的受控工具（六个域注册表去重后的名字数）</div></div>
     </div>
     <h3 style="margin:22px 0 10px;font-size:1.02rem">每次提交前会跑红的门禁</h3>
     <div class="gates">
