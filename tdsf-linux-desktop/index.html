@@ -1922,7 +1922,7 @@ footer {
     <div class="head-row">
       <div>
         <h2 class="h2" data-rv>每个数字都带复现命令</h2>
-        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-20 14:13 由本机重跑取得，端到端 13:51 那一轮（之后只改文档与判据，应用代码没动），UTC+8。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
+        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-22 12:46 由本机重跑取得，端到端 12:52 那一轮（含真机 192.168.45.200），UTC+8。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
       </div>
       <div class="idx" data-rv>7 条读数<br>各带复现命令</div>
     </div>
@@ -1931,8 +1931,8 @@ footer {
       <table class="tbl">
         <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
         <tbody>
-          <tr><td class="k">单元与组件用例</td><td class="v">3310 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3329；290 个测试文件（288 通过 / 2 跳过）</span></td></tr>
-          <tr><td class="k">端到端用例</td><td class="v">59 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，13 条按是否需要真服务器 / 真模型跳过</span></td></tr>
+          <tr><td class="k">单元与组件用例</td><td class="v">3314 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3333；290 个测试文件（288 通过 / 2 跳过）</span></td></tr>
+          <tr><td class="k">端到端用例</td><td class="v">62 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，13 条按是否需要真服务器 / 真模型跳过</span></td></tr>
           <tr><td class="k">IPC 通道</td><td class="v">274</td><td class="c">npm run audit:ipc　<span class="note">235 请求-响应 + 39 事件推送</span></td></tr>
           <tr><td class="k">已登记契约的通道</td><td class="v">54</td><td class="c">src/shared/ipc-contract.ts　<span class="note">49 请求-响应 + 5 事件推送</span></td></tr>
           <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">510</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
