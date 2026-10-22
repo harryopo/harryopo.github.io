@@ -1813,7 +1813,7 @@ footer {
         <h2 class="h2" data-rv>三进程，一条受控边界</h2>
         <p class="sec-lede" data-rv>渲染层拿不到 Node 能力。所有敏感操作经 preload 暴露的类型化通道进主进程；通道名由一张中央常量表出，已登记契约的通道在入口校验入参。</p>
       </div>
-      <div class="idx" data-rv>270 条通道<br>35 条已登记契约</div>
+      <div class="idx" data-rv>273 条通道<br>53 条已登记契约</div>
     </div>
 
     <div class="arch-stack">
@@ -1842,9 +1842,9 @@ footer {
         <path class="t-back" d="M1200 24 H0"/>
       </svg>
       <div class="trunk-cap" data-rv>
-        <span><b>invoke</b> 231 条 请求-响应 →</span>
+        <span><b>invoke</b> 234 条 请求-响应 →</span>
         <span><b>event</b> 39 条 事件推送 ←</span>
-        <span><b>已登记契约</b> 35 条</span>
+        <span><b>已登记契约</b> 53 条</span>
       </div>
 
       <div class="arch-lower">
@@ -1922,7 +1922,7 @@ footer {
     <div class="head-row">
       <div>
         <h2 class="h2" data-rv>每个数字都带复现命令</h2>
-        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-20 13:44 由本机重跑取得，端到端 13:51 另跑一轮（删过代码就两边都要重测），UTC+8。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
+        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-20 14:13 由本机重跑取得，端到端 13:51 那一轮（之后只改文档与判据，应用代码没动），UTC+8。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
       </div>
       <div class="idx" data-rv>7 条读数<br>各带复现命令</div>
     </div>
@@ -1931,11 +1931,11 @@ footer {
       <table class="tbl">
         <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
         <tbody>
-          <tr><td class="k">单元与组件用例</td><td class="v">3196 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3215；270 个测试文件（268 通过 / 2 跳过）</span></td></tr>
+          <tr><td class="k">单元与组件用例</td><td class="v">3285 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3304；286 个测试文件（284 通过 / 2 跳过）</span></td></tr>
           <tr><td class="k">端到端用例</td><td class="v">59 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，13 条按是否需要真服务器 / 真模型跳过</span></td></tr>
-          <tr><td class="k">IPC 通道</td><td class="v">270</td><td class="c">npm run audit:ipc　<span class="note">231 请求-响应 + 39 事件推送</span></td></tr>
-          <tr><td class="k">已登记契约的通道</td><td class="v">35</td><td class="c">src/shared/ipc-contract.ts　<span class="note">30 请求-响应 + 5 事件推送</span></td></tr>
-          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">499</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
+          <tr><td class="k">IPC 通道</td><td class="v">273</td><td class="c">npm run audit:ipc　<span class="note">234 请求-响应 + 39 事件推送</span></td></tr>
+          <tr><td class="k">已登记契约的通道</td><td class="v">53</td><td class="c">src/shared/ipc-contract.ts　<span class="note">48 请求-响应 + 5 事件推送</span></td></tr>
+          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">505</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
           <tr><td class="k">命令规则词表项</td><td class="v">226</td><td class="c">npm run promo:check　<span class="note">八张表逐项相加，护栏按分组数（早先手数漏了两组，报成 216）</span></td></tr>
           <tr><td class="k">结构性拦截器</td><td class="v">8</td><td class="c">denyBaseline.blockDetectors</td></tr>
         </tbody>
