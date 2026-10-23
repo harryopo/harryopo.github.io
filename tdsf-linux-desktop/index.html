@@ -1720,7 +1720,7 @@ footer {
       <div class="row" data-rv><div class="key">terminal</div><div><h3>终端优先，不是聊天框优先</h3><p>三栏可拖拽，终端格默认最大化；多标签、独立第二窗口，同时看两台机器不来回切。拖出来的宽度会记住。</p></div></div>
       <div class="row" data-rv><div class="key">blocks</div><div><h3>命令与输出切成块</h3><p>OSC 133 / 633 标记把一次命令和它的输出缝成一块，可回看、可检索，也是 AI 读上下文的单位。</p></div></div>
       <div class="row" data-rv><div class="key">gate</div><div><h3>拦截发生在执行之前</h3><p>词表规则 + tree-sitter-bash 结构化解析 + 只读白名单，输出等级、命中依据、影响范围；拦下的那些不会落进 shell。</p></div></div>
-      <div class="row" data-rv><div class="key">agent</div><div><h3>AI 的每一步落在屏上</h3><p>思考、工具调用、待执行命令、返回结果分开展示；诊断 / 部署 / 巡检 / 回滚四种模式走同一套编排，流式可中断。</p></div></div>
+      <div class="row" data-rv><div class="key">agent</div><div><h3>AI 的每一步落在屏上</h3><p>思考、工具调用、待执行命令、返回结果分开展示；诊断 / 部署 / 巡检 / 回滚四种模式走同一套编排，流式可中断。问答记录落本地库：重启后接着看，切服务器不串档，清空按下去就真删。</p></div></div>
       <div class="row" data-rv><div class="key">context</div><div><h3>用量说清是实测还是估算</h3><p>上下文占用按模型真实窗口计算；实测 token 与估算值分开标注，不拿估出来的数字冒充实测。</p></div></div>
       <div class="row" data-rv><div class="key">decide</div><div><h3>结论后面挂着证据链</h3><p>多源证据加权融合（Dempster 规则 + PCR5 冲突再分配），雷达图显示每条证据的贡献与冲突流向；权重读取失败时降级为无权重融合，界面如实显示降级。</p></div></div>
       <div class="row" data-rv><div class="key">knowledge</div><div><h3>断网也能查的运维知识</h3><p>命令词典、教程、故障案例三类条目；本地嵌入模型 + SQLite 向量索引做语义检索，不依赖外部 API。读者答复回灌条目成功率。</p></div></div>
@@ -1931,11 +1931,11 @@ footer {
       <table class="tbl">
         <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
         <tbody>
-          <tr><td class="k">单元与组件用例</td><td class="v">3510 通过</td><td class="c">npm test　<span class="note">另有 20 条按环境跳过，共 3530；310 个测试文件（308 通过 / 2 跳过）</span></td></tr>
-          <tr><td class="k">端到端用例</td><td class="v">71 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，13 条按是否需要真服务器 / 真模型跳过</span></td></tr>
-          <tr><td class="k">IPC 通道</td><td class="v">278</td><td class="c">npm run audit:ipc　<span class="note">239 请求-响应 + 39 事件推送</span></td></tr>
-          <tr><td class="k">已登记契约的通道</td><td class="v">58</td><td class="c">src/shared/ipc-contract.ts　<span class="note">53 请求-响应 + 5 事件推送</span></td></tr>
-          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">521</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
+          <tr><td class="k">单元与组件用例</td><td class="v">3561 通过</td><td class="c">npm test　<span class="note">另有 20 条按环境跳过，共 3581；316 个测试文件（314 通过 / 2 跳过）</span></td></tr>
+          <tr><td class="k">端到端用例</td><td class="v">74 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，13 条按是否需要真服务器 / 真模型跳过</span></td></tr>
+          <tr><td class="k">IPC 通道</td><td class="v">281</td><td class="c">npm run audit:ipc　<span class="note">242 请求-响应 + 39 事件推送</span></td></tr>
+          <tr><td class="k">已登记契约的通道</td><td class="v">61</td><td class="c">src/shared/ipc-contract.ts　<span class="note">56 请求-响应 + 5 事件推送</span></td></tr>
+          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">524</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
           <tr><td class="k">命令规则词表项</td><td class="v">226</td><td class="c">npm run promo:check　<span class="note">八张表逐项相加，护栏按分组数（早先手数漏了两组，报成 216）</span></td></tr>
           <tr><td class="k">结构性拦截器</td><td class="v">8</td><td class="c">denyBaseline.blockDetectors</td></tr>
         </tbody>
