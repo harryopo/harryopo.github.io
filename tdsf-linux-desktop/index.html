@@ -1813,7 +1813,7 @@ footer {
         <h2 class="h2" data-rv>三进程，一条受控边界</h2>
         <p class="sec-lede" data-rv>渲染层拿不到 Node 能力。所有敏感操作经 preload 暴露的类型化通道进主进程；通道名由一张中央常量表出，已登记契约的通道在入口校验入参。</p>
       </div>
-      <div class="idx" data-rv>231 条通道<br>63 条已登记契约</div>
+      <div class="idx" data-rv>223 条通道<br>63 条已登记契约</div>
     </div>
 
     <div class="arch-stack">
@@ -1835,15 +1835,15 @@ footer {
         </div>
       </div>
 
-      <svg class="trunk" viewBox="0 0 1200 34" preserveAspectRatio="none" role="img" aria-label="渲染进程向主进程发起 202 条请求-响应调用，主进程向界面回推 29 条事件">
+      <svg class="trunk" viewBox="0 0 1200 34" preserveAspectRatio="none" role="img" aria-label="渲染进程向主进程发起 195 条请求-响应调用，主进程向界面回推 28 条事件">
         <path class="t-edge" d="M0 12 H1200"/>
         <path class="t-fwd" d="M0 12 H1200"/>
         <path class="t-edge" d="M0 24 H1200"/>
         <path class="t-back" d="M1200 24 H0"/>
       </svg>
       <div class="trunk-cap" data-rv>
-        <span><b>invoke</b> 202 条 请求-响应 →</span>
-        <span><b>event</b> 29 条 事件推送 ←</span>
+        <span><b>invoke</b> 195 条 请求-响应 →</span>
+        <span><b>event</b> 28 条 事件推送 ←</span>
         <span><b>已登记契约</b> 63 条</span>
       </div>
 
@@ -1931,11 +1931,11 @@ footer {
       <table class="tbl">
         <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
         <tbody>
-          <tr><td class="k">单元与组件用例</td><td class="v">3556 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3575；331 个测试文件（329 通过 / 2 跳过）</span></td></tr>
+          <tr><td class="k">单元与组件用例</td><td class="v">3560 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3579；332 个测试文件（330 通过 / 2 跳过）</span></td></tr>
           <tr><td class="k">端到端用例</td><td class="v">74 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口，13 条按是否需要真服务器 / 真模型跳过</span></td></tr>
-          <tr><td class="k">IPC 通道</td><td class="v">231</td><td class="c">npm run audit:ipc　<span class="note">202 请求-响应 + 29 事件推送</span></td></tr>
+          <tr><td class="k">IPC 通道</td><td class="v">223</td><td class="c">npm run audit:ipc　<span class="note">195 请求-响应 + 28 事件推送</span></td></tr>
           <tr><td class="k">已登记契约的通道</td><td class="v">63</td><td class="c">src/shared/ipc-contract.ts　<span class="note">58 请求-响应 + 5 事件推送</span></td></tr>
-          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">504</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
+          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">502</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
           <tr><td class="k">命令规则词表项</td><td class="v">226</td><td class="c">npm run promo:check　<span class="note">八张表逐项相加，护栏按分组数（早先手数漏了两组，报成 216）</span></td></tr>
           <tr><td class="k">结构性拦截器</td><td class="v">8</td><td class="c">denyBaseline.blockDetectors</td></tr>
         </tbody>
