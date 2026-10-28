@@ -1922,7 +1922,7 @@ footer {
     <div class="head-row">
       <div>
         <h2 class="h2" data-rv>每个数字都带复现命令</h2>
-        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-28 12:47 由本机重跑取得，端到端是 12:30–12:36 那一轮（含真机靶机），时间是本机时钟。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
+        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-28 12:47 由本机重跑取得，端到端是 13:59–14:05 那一轮（含真机靶机），时间是本机时钟。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
       </div>
       <div class="idx" data-rv>7 条读数<br>各带复现命令</div>
     </div>
@@ -1932,10 +1932,10 @@ footer {
         <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
         <tbody>
           <tr><td class="k">单元与组件用例</td><td class="v">3617 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3636；353 个测试文件，0 失败</span></td></tr>
-          <tr><td class="k">端到端用例</td><td class="v">94 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口；10 条按环境跳过（3 条要真模型 Key、2 条要一个比 out/ 新的发布包、5 条要 192.168.45.200 那台的密码登录），11 条真靶机用例那一轮都真跑了</span></td></tr>
+          <tr><td class="k">端到端用例</td><td class="v">99 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口；10 条按环境跳过（3 条要真模型 Key、2 条要一个比 out/ 新的发布包、5 条要 192.168.45.200 那台的密码登录），11 条真靶机用例那一轮都真跑了</span></td></tr>
           <tr><td class="k">IPC 通道</td><td class="v">163</td><td class="c">npm run audit:ipc　<span class="note">145 请求-响应 + 18 事件推送</span></td></tr>
           <tr><td class="k">已登记契约的通道</td><td class="v">60</td><td class="c">src/shared/ipc-contract.ts　<span class="note">55 请求-响应 + 5 事件推送</span></td></tr>
-          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">458</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
+          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">457</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
           <tr><td class="k">命令规则词表项</td><td class="v">226</td><td class="c">npm run promo:check　<span class="note">八张表逐项相加，护栏按分组数（早先手数漏了两组，报成 216）</span></td></tr>
           <tr><td class="k">结构性拦截器</td><td class="v">8</td><td class="c">denyBaseline.blockDetectors</td></tr>
         </tbody>
