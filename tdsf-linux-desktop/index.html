@@ -1615,7 +1615,7 @@ footer {
       </div>
       <div class="stack-line" data-rv>
         <b>Electron 43</b> · <b>React 19</b> · <b>xterm.js</b> 命令块<br>
-        数据只落<b>本机 SQLite</b> · 模型可指向<b>本机 Ollama</b>
+        数据只落<b>本机 SQLite</b> · 模型可换<b>任意 OpenAI 兼容服务</b>
       </div>
     </div>
 
@@ -1906,7 +1906,7 @@ footer {
           <tr><td class="k">界面</td><td>React 19 + TypeScript + Zustand 5 + Radix UI + Tailwind + lucide-react</td></tr>
           <tr><td class="k">终端</td><td>xterm.js 5 + node-pty（本机）+ ssh2（远端），两侧命令块口径一致</td></tr>
           <tr><td class="k">编辑器</td><td>Monaco 0.56，资源本地打包，无 CDN 依赖</td></tr>
-          <tr><td class="k">AI</td><td>Vercel AI SDK 7 + 官方 MCP SDK 1.32，Anthropic / Google / OpenAI 兼容端，支持本机 Ollama</td></tr>
+          <tr><td class="k">AI</td><td>Vercel AI SDK 7 + 官方 MCP SDK 1.32，Anthropic / Google / OpenAI 兼容端，内置 8 家现役模型模板</td></tr>
           <tr><td class="k">命令解析</td><td>web-tree-sitter + tree-sitter-bash</td></tr>
           <tr><td class="k">存储</td><td>better-sqlite3 + sqlite-vec 向量索引，@xenova/transformers 本地嵌入</td></tr>
           <tr><td class="k">可观测</td><td>Langfuse 追踪（未配置密钥时自动关闭，不影响主流程）</td></tr>
@@ -1922,7 +1922,7 @@ footer {
     <div class="head-row">
       <div>
         <h2 class="h2" data-rv>每个数字都带复现命令</h2>
-        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-28 08:45 由本机重跑取得，端到端是 10-27 23:50–23:55 那一轮（含真机靶机），时间是本机时钟。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
+        <p class="sec-lede" data-rv>单元与结构读数在 2026-10-28 09:39 由本机重跑取得，端到端是 09:50–09:56 那一轮（含真机靶机），时间是本机时钟。除用例数两条外，这些读数只有一个出口：<span class="mono">npm run promo:check</span>。界面和文档里都不出现没有测法的数字。</p>
       </div>
       <div class="idx" data-rv>7 条读数<br>各带复现命令</div>
     </div>
@@ -1931,7 +1931,7 @@ footer {
       <table class="tbl">
         <thead><tr><th>读数</th><th>值</th><th>怎么量的</th></tr></thead>
         <tbody>
-          <tr><td class="k">单元与组件用例</td><td class="v">3587 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3606；350 个测试文件，0 失败</span></td></tr>
+          <tr><td class="k">单元与组件用例</td><td class="v">3604 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3623；350 个测试文件，0 失败</span></td></tr>
           <tr><td class="k">端到端用例</td><td class="v">98 通过</td><td class="c">npx playwright test　<span class="note">Playwright 直驱真实应用窗口；5 条按环境跳过（3 条要真模型 Key、2 条要一个比 out/ 新的发布包），11 条真靶机用例那一轮都真跑了</span></td></tr>
           <tr><td class="k">IPC 通道</td><td class="v">164</td><td class="c">npm run audit:ipc　<span class="note">146 请求-响应 + 18 事件推送</span></td></tr>
           <tr><td class="k">已登记契约的通道</td><td class="v">61</td><td class="c">src/shared/ipc-contract.ts　<span class="note">56 请求-响应 + 5 事件推送</span></td></tr>
