@@ -1813,7 +1813,7 @@ footer {
         <h2 class="h2" data-rv>三进程，一条受控边界</h2>
         <p class="sec-lede" data-rv>渲染层拿不到 Node 能力。所有敏感操作经 preload 暴露的类型化通道进主进程；通道名由一张中央常量表出，已登记契约的通道在入口校验入参。</p>
       </div>
-      <div class="idx" data-rv>166 条通道<br>61 条已登记契约</div>
+      <div class="idx" data-rv>167 条通道<br>62 条已登记契约</div>
     </div>
 
     <div class="arch-stack">
@@ -1835,16 +1835,16 @@ footer {
         </div>
       </div>
 
-      <svg class="trunk" viewBox="0 0 1200 34" preserveAspectRatio="none" role="img" aria-label="渲染进程向主进程发起 146 条请求-响应调用，主进程向界面回推 20 条事件">
+      <svg class="trunk" viewBox="0 0 1200 34" preserveAspectRatio="none" role="img" aria-label="渲染进程向主进程发起 147 条请求-响应调用，主进程向界面回推 20 条事件">
         <path class="t-edge" d="M0 12 H1200"/>
         <path class="t-fwd" d="M0 12 H1200"/>
         <path class="t-edge" d="M0 24 H1200"/>
         <path class="t-back" d="M1200 24 H0"/>
       </svg>
       <div class="trunk-cap" data-rv>
-        <span><b>invoke</b> 146 条 请求-响应 →</span>
+        <span><b>invoke</b> 147 条 请求-响应 →</span>
         <span><b>event</b> 20 条 事件推送 ←</span>
-        <span><b>已登记契约</b> 61 条</span>
+        <span><b>已登记契约</b> 62 条</span>
       </div>
 
       <div class="arch-lower">
@@ -1933,9 +1933,9 @@ footer {
         <tbody>
           <tr><td class="k">单元与组件用例</td><td class="v">3634 通过</td><td class="c">npm test　<span class="note">另有 19 条按环境跳过，共 3653；354 个测试文件，0 失败</span></td></tr>
           <tr><td class="k">端到端用例</td><td class="v">113 通过</td><td class="c">npx playwright test --workers=2　<span class="note">Playwright 直驱真实应用窗口；10 条按环境跳过（7 条要另一台口令认证的机器、1 条要有效模型 Key、2 条要一个比 out/ 新的发布包）；13 条真 Linux 靶机用例（WSL 两台，含两跳那一组）当轮全真跑</span></td></tr>
-          <tr><td class="k">IPC 通道</td><td class="v">166</td><td class="c">npm run audit:ipc　<span class="note">146 请求-响应 + 20 事件推送</span></td></tr>
-          <tr><td class="k">已登记契约的通道</td><td class="v">61</td><td class="c">src/shared/ipc-contract.ts　<span class="note">56 请求-响应 + 5 事件推送</span></td></tr>
-          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">438</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
+          <tr><td class="k">IPC 通道</td><td class="v">167</td><td class="c">npm run audit:ipc　<span class="note">147 请求-响应 + 20 事件推送</span></td></tr>
+          <tr><td class="k">已登记契约的通道</td><td class="v">62</td><td class="c">src/shared/ipc-contract.ts　<span class="note">57 请求-响应 + 5 事件推送</span></td></tr>
+          <tr><td class="k">TypeScript / TSX 源文件</td><td class="v">440</td><td class="c">git ls-files src　<span class="note">按 .ts / .tsx 计数</span></td></tr>
           <tr><td class="k">命令规则词表项</td><td class="v">244</td><td class="c">npm run promo:check　<span class="note">八张表逐项相加，护栏按分组数（早先手数漏了两组，报成 216）</span></td></tr>
           <tr><td class="k">结构性拦截器</td><td class="v">8</td><td class="c">denyBaseline.blockDetectors</td></tr>
         </tbody>
