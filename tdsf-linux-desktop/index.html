@@ -1973,7 +1973,7 @@ footer {
     <div class="honest" data-rv>
       <ul>
         <li><span class="mk">已公开</span><span>源码仓库已公开（MIT），但<strong>不提供安装包下载</strong>：需要界面里那三个 build 脚本之一在本机自行打包，Windows 之外未验证。</span></li>
-        <li><span class="mk">需连接</span><span>监控、日志与远端文件能力需要先连上一台 Linux 服务器；未连接时界面显示空状态，不放示例数据。</span></li>
+        <li><span class="mk">需连接</span><span>监控与远端 /var/log 读取需要先连上一台 Linux 服务器，未连接时这两项显示空状态、不放示例数据；本应用自身的运行日志不需要连接。</span></li>
         <li><span class="mk">看模型</span><span>AI 能力取决于所配置的模型。本地小模型下工具调用的稳定性会明显下降，此时建议只用于解释与诊断。</span></li>
         <li><span class="mk">会降级</span><span>可信度融合在证据权重读取失败时降级为无权重融合，界面如实显示降级，不会静默给一个看起来更准的数字。</span></li>
       </ul>
